@@ -6,14 +6,178 @@ import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QLabel, 
     QMenu, QAction, QVBoxLayout, QWidget, QPushButton,
-    QMessageBox, QDialog, QHBoxLayout
+    QMessageBox, QDialog, QHBoxLayout, QFrame
 )
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon, QFont, QColor, QPalette
 
 from .pages.automata_page import AutomataPage
 from .pages.analysis_page import AnalysisPage
 from .pages.advanced_page import AdvancedPage
+from .pages.login_page import LoginPage
+
+
+# Define app style constants
+APP_STYLE = """
+QMainWindow, QDialog {
+    background-color: #f5f5f7;
+}
+
+QTabWidget::pane {
+    border: 1px solid #c0c0c0;
+    background-color: #ffffff;
+    border-radius: 4px;
+}
+
+QTabBar::tab {
+    background-color: #e0e0e5;
+    color: #505050;
+    border: 1px solid #c0c0c0;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 10px 20px;
+    margin-right: 2px;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+QTabBar::tab:selected {
+    background-color: #ffffff;
+    color: #2c3e50;
+    border-bottom: none;
+}
+
+QGroupBox {
+    font-weight: bold;
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    margin-top: 12px;
+    padding-top: 16px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px;
+}
+
+QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-weight: bold;
+    min-width: 100px;
+    min-height: 30px;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #1c6ea4;
+}
+
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+
+QLineEdit {
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: white;
+}
+
+QLineEdit:focus {
+    border: 1px solid #3498db;
+}
+
+QComboBox {
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: white;
+}
+
+QLabel {
+    color: #2c3e50;
+}
+
+QTextEdit {
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    background-color: white;
+}
+
+QCheckBox {
+    spacing: 8px;
+}
+
+/* Special buttons */
+QPushButton#delete-button {
+    background-color: #e74c3c;
+}
+
+QPushButton#delete-button:hover {
+    background-color: #c0392b;
+}
+
+#title-label {
+    font-size: 16pt;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+#welcome-label {
+    font-size: 12pt;
+    color: #34495e;
+}
+
+QMenuBar {
+    background-color: #2c3e50;
+    color: white;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    color: white;
+    padding: 6px 12px;
+}
+
+QMenuBar::item:selected {
+    background-color: #3498db;
+}
+
+QMenu {
+    background-color: #2c3e50;
+    color: white;
+    border: 1px solid #1c2833;
+}
+
+QMenu::item {
+    padding: 6px 20px 6px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #3498db;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #1c2833;
+    margin: 5px 15px;
+}
+
+QStatusBar {
+    background-color: #2c3e50;
+    color: white;
+}
+"""
 
 
 class AutomataApp(QMainWindow):
@@ -29,18 +193,65 @@ class AutomataApp(QMainWindow):
         self.resize(1000, 700)
         self.setMinimumSize(800, 600)
         
+        # Apply the stylesheet
+        self.setStyleSheet(APP_STYLE)
+        
+        # Set application-wide font
+        app_font = QFont("Segoe UI", 10)
+        QApplication.setFont(app_font)
+        
         # Set the application icon if available
         try:
             self.setWindowIcon(QIcon("resources/icon.ico"))
         except:
             pass  # Icon not found, ignore
         
-        # Create central widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        # Create a central widget to hold either the login page or the main app
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.layout = QVBoxLayout(self.central_widget)
         
-        # Set up the main layout
-        main_layout = QVBoxLayout(central_widget)
+        # Create and show the login page first
+        self.login_page = LoginPage(self)
+        self.layout.addWidget(self.login_page)
+        
+        # Initialize but don't create the main app yet
+        self.main_app_widget = None
+        self.notebook = None
+        self.automata_page = None
+        self.analysis_page = None
+        self.advanced_page = None
+        
+        # Create status bar
+        self.status_bar = self.statusBar()
+        self.status_bar.showMessage("Please login to continue")
+        
+        # Current user
+        self.current_user = None
+    
+    def on_login_success(self, user):
+        """
+        Called when login is successful.
+        
+        Args:
+            user: The user who logged in
+        """
+        # Store the current user
+        self.current_user = user
+        
+        # Remove the login page
+        self.login_page.setParent(None)
+        
+        # Create the main application UI
+        self.create_main_app()
+    
+    def create_main_app(self):
+        """
+        Create the main application UI after login.
+        """
+        # Create main app widget
+        self.main_app_widget = QWidget()
+        main_layout = QVBoxLayout(self.main_app_widget)
         
         # Create a notebook for tabs
         self.notebook = QTabWidget()
@@ -59,12 +270,16 @@ class AutomataApp(QMainWindow):
         # Set up tab change event
         self.notebook.currentChanged.connect(self.on_tab_changed)
         
+        # Add main app to layout
+        self.layout.addWidget(self.main_app_widget)
+        
         # Create menu
         self.create_menu()
         
-        # Create status bar
-        self.status_bar = self.statusBar()
-        self.status_bar.showMessage("Ready")
+        # Update status bar
+        username = self.current_user.get("username", "User")
+        role = self.current_user.get("role", "user")
+        self.status_bar.showMessage(f"Logged in as {username} ({role})")
     
     def create_menu(self):
         """
@@ -72,6 +287,22 @@ class AutomataApp(QMainWindow):
         """
         # Create menu bar
         menu_bar = self.menuBar()
+        
+        # User menu
+        user_menu = menu_bar.addMenu("User")
+        
+        # Show username in menu
+        username = self.current_user.get("username", "Unknown")
+        user_label_action = QAction(f"Logged in as: {username}", self)
+        user_label_action.setEnabled(False)
+        user_menu.addAction(user_label_action)
+        
+        user_menu.addSeparator()
+        
+        # Add logout action
+        logout_action = QAction("Logout", self)
+        logout_action.triggered.connect(self.logout)
+        user_menu.addAction(logout_action)
         
         # File menu
         file_menu = menu_bar.addMenu("File")
@@ -146,6 +377,39 @@ class AutomataApp(QMainWindow):
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
     
+    def logout(self):
+        """
+        Handle logout action.
+        """
+        reply = QMessageBox.question(
+            self, "Logout", "Are you sure you want to logout?", 
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Log the action
+            if self.current_user:
+                from Security.security.logs import log_action
+                log_action(self.current_user.get("username", "unknown"), "logout")
+            
+            # Remove main app
+            if self.main_app_widget:
+                self.main_app_widget.setParent(None)
+                self.main_app_widget = None
+            
+            # Clear menu
+            self.menuBar().clear()
+            
+            # Reset current user
+            self.current_user = None
+            
+            # Create new login page
+            self.login_page = LoginPage(self)
+            self.layout.addWidget(self.login_page)
+            
+            # Update status bar
+            self.status_bar.showMessage("Please login to continue")
+    
     def on_tab_changed(self, index):
         """
         Handle tab change event.
@@ -166,46 +430,74 @@ class AutomataApp(QMainWindow):
         """
         about_dialog = QDialog(self)
         about_dialog.setWindowTitle("About Automata App")
-        about_dialog.setFixedSize(400, 300)
+        about_dialog.setFixedSize(500, 400)
         
         layout = QVBoxLayout(about_dialog)
+        layout.setSpacing(20)
+        layout.setContentsMargins(30, 30, 30, 30)
+        
+        # Create a card-like container
+        content_widget = QWidget()
+        content_widget.setObjectName("about-container")
+        content_widget.setStyleSheet("""
+            #about-container {
+                background-color: white;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+            }
+        """)
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setSpacing(15)
         
         # Add title
         title_label = QLabel("Automata App")
-        title_font = QFont()
-        title_font.setBold(True)
-        title_font.setPointSize(16)
-        title_label.setFont(title_font)
+        title_label.setObjectName("title-label")
         title_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title_label)
+        content_layout.addWidget(title_label)
         
         # Add description
-        desc_label = QLabel("A Python application for working with finite automata (DFA/NFA).")
+        desc_label = QLabel("A Python application for working with finite automata (DFA/NFA) with integrated security features.")
         desc_label.setWordWrap(True)
         desc_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(desc_label)
+        content_layout.addWidget(desc_label)
+        
+        # Add horizontal line
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        separator.setStyleSheet("background-color: #e0e0e0;")
+        content_layout.addWidget(separator)
         
         # Add version
-        version_label = QLabel("Version 0.1.0")
+        version_label = QLabel("Version 1.0.0")
         version_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(version_label)
+        content_layout.addWidget(version_label)
+        
+        # Add creators
+        creators_label = QLabel("Created by CSCC-12 Group")
+        creators_label.setAlignment(Qt.AlignCenter)
+        creators_label.setStyleSheet("font-weight: bold; color: #2c3e50;")
+        content_layout.addWidget(creators_label)
+        
+        # Add project details
+        project_label = QLabel("Group Project for Pr. Kamouss and Pr. Lazaiz")
+        project_label.setAlignment(Qt.AlignCenter)
+        content_layout.addWidget(project_label)
         
         # Add copyright
-        copyright_label = QLabel("© 2023 Student Project")
+        copyright_label = QLabel("© 2025 CSCC-12")
         copyright_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(copyright_label)
+        copyright_label.setStyleSheet("color: #7f8c8d;")
+        content_layout.addWidget(copyright_label)
         
-        # Add close button
+        # Add the content widget to the main layout
+        layout.addWidget(content_widget)
+        
+        # Add close button with styling
         close_button = QPushButton("Close")
+        close_button.setMinimumHeight(40)
         close_button.clicked.connect(about_dialog.close)
-        
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        button_layout.addWidget(close_button)
-        button_layout.addStretch()
-        
-        layout.addStretch()
-        layout.addLayout(button_layout)
+        layout.addWidget(close_button)
         
         about_dialog.exec_()
     

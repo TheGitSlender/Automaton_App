@@ -4,7 +4,7 @@ Analysis page for automata properties and transformations.
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
     QLabel, QPushButton, QTextEdit, QFrame,
-    QGroupBox, QFormLayout, QComboBox
+    QGroupBox, QFormLayout, QComboBox, QMessageBox
 )
 from PyQt5.QtCore import Qt
 import os
@@ -19,7 +19,7 @@ from automata.storage import save_automaton, load_automaton
 
 from .base_page import BasePage
 from ..widgets.tree_canvas import AutomataCanvas
-from ..widgets.dialogs import show_info, show_error, show_warning
+from ..widgets.dialogs import show_info, show_error, show_warning, choose_file_save
 
 # Directory for saving automata before analysis
 AUTOMATA_SAVE_DIR = "Automates"
@@ -88,20 +88,38 @@ class AnalysisPage(BasePage):
         
         selector_layout.addWidget(selector_frame)
         
-        # Load and save buttons
+        # Load, save, and delete buttons
         buttons_frame = QWidget()
         buttons_layout = QHBoxLayout(buttons_frame)
         buttons_layout.setContentsMargins(0, 0, 0, 0)
         
         load_button = QPushButton("Load Selected")
+        load_button.setMinimumWidth(120)
+        load_button.setMinimumHeight(30)
         load_button.clicked.connect(self.load_selected_automaton)
         buttons_layout.addWidget(load_button)
         
         save_button = QPushButton("Save Automaton")
+        save_button.setMinimumWidth(120)
+        save_button.setMinimumHeight(30)
         save_button.clicked.connect(self.save_automaton)
         buttons_layout.addWidget(save_button)
         
         selector_layout.addWidget(buttons_frame)
+        
+        # Add delete button in another row
+        delete_frame = QWidget()
+        delete_layout = QHBoxLayout(delete_frame)
+        delete_layout.setContentsMargins(0, 0, 0, 0)
+        
+        delete_button = QPushButton("Delete Selected")
+        delete_button.setObjectName("delete-button")  # Use the ID for styling from the main stylesheet
+        delete_button.setMinimumWidth(120)
+        delete_button.setMinimumHeight(30)
+        delete_button.clicked.connect(self.delete_automaton)
+        delete_layout.addWidget(delete_button)
+        
+        selector_layout.addWidget(delete_frame)
         
         self.left_layout.addWidget(self.selector_group)
         
@@ -123,6 +141,8 @@ class AnalysisPage(BasePage):
         determinism_layout.addWidget(self.determinism_value)
         
         determinism_button = QPushButton("Check")
+        determinism_button.setMinimumWidth(80)
+        determinism_button.setMinimumHeight(30)
         determinism_button.clicked.connect(self.check_determinism)
         determinism_layout.addWidget(determinism_button)
         
@@ -141,6 +161,8 @@ class AnalysisPage(BasePage):
         completeness_layout.addWidget(self.completeness_value)
         
         completeness_button = QPushButton("Check")
+        completeness_button.setMinimumWidth(80)
+        completeness_button.setMinimumHeight(30)
         completeness_button.clicked.connect(self.check_completeness)
         completeness_layout.addWidget(completeness_button)
         
@@ -208,6 +230,8 @@ class AnalysisPage(BasePage):
         nfa_to_dfa_layout.addWidget(nfa_to_dfa_label)
         
         nfa_to_dfa_button = QPushButton("Convert")
+        nfa_to_dfa_button.setMinimumWidth(90)
+        nfa_to_dfa_button.setMinimumHeight(30)
         nfa_to_dfa_button.clicked.connect(self.convert_to_dfa)
         nfa_to_dfa_layout.addWidget(nfa_to_dfa_button)
         
@@ -222,6 +246,8 @@ class AnalysisPage(BasePage):
         complete_layout.addWidget(complete_label)
         
         complete_button = QPushButton("Complete")
+        complete_button.setMinimumWidth(90)
+        complete_button.setMinimumHeight(30)
         complete_button.clicked.connect(self.make_automaton_complete)
         complete_layout.addWidget(complete_button)
         
@@ -236,6 +262,8 @@ class AnalysisPage(BasePage):
         minimize_layout.addWidget(minimize_label)
         
         minimize_button = QPushButton("Minimize")
+        minimize_button.setMinimumWidth(90)
+        minimize_button.setMinimumHeight(30)
         minimize_button.clicked.connect(self.minimize_automaton)
         minimize_layout.addWidget(minimize_button)
         
@@ -439,10 +467,7 @@ class AnalysisPage(BasePage):
                 missing = []
                 
                 for state in self.analysis_automaton.states.values():
-                    # Skip final states when checking completeness
-                    if state.is_final:
-                        continue
-                        
+                    # Check all states, including final states
                     for symbol in self.analysis_automaton.alphabet.symbols:
                         has_transition = False
                         for t in self.analysis_automaton.transitions:
@@ -603,4 +628,49 @@ class AnalysisPage(BasePage):
             # Refresh automaton lists
             self.refresh_automaton_list()
         except Exception as e:
-            show_error(self, "Error Saving Automaton", str(e)) 
+            show_error(self, "Error Saving Automaton", str(e))
+    
+    def delete_automaton(self):
+        """
+        Delete the selected automaton.
+        """
+        if self.automaton_combo.count() == 0 or not self.automaton_combo.isEnabled():
+            show_warning(self, "No Automaton Selected", "No automaton selected for deletion.")
+            return
+        
+        # Get the selected file path
+        file_path = self.automaton_combo.currentData()
+        file_name = os.path.basename(file_path)
+        
+        if not file_path or not os.path.exists(file_path):
+            show_error(self, "Error", "Could not find the selected automaton file.")
+            return
+        
+        # Confirm deletion
+        reply = QMessageBox.question(
+            self, 
+            "Confirm Deletion", 
+            f"Are you sure you want to delete '{file_name}'?\n\nThis action cannot be undone.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply != QMessageBox.Yes:
+            return
+        
+        try:
+            # Delete the file
+            os.remove(file_path)
+            
+            # If the deleted file was currently loaded, reset the analysis view
+            if self.current_automaton_path == file_path:
+                self.analysis_automaton = None
+                self.current_automaton_path = None
+                self.update_analysis()
+            
+            # Refresh automaton lists
+            self.refresh_automaton_list()
+            
+            show_info(self, "Automaton Deleted", f"Automaton {file_name} deleted successfully.")
+        except Exception as e:
+            show_error(self, "Error Deleting Automaton", str(e)) 

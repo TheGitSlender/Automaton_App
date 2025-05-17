@@ -128,14 +128,20 @@ class AutomataPage(BasePage):
         self.states_layout.addWidget(self.states_toolbar)
         
         add_state_button = QPushButton("Add State")
+        add_state_button.setMinimumWidth(100)
+        add_state_button.setMinimumHeight(30)
         add_state_button.clicked.connect(self.add_state)
         self.states_toolbar_layout.addWidget(add_state_button)
         
         edit_state_button = QPushButton("Edit State")
+        edit_state_button.setMinimumWidth(100)
+        edit_state_button.setMinimumHeight(30)
         edit_state_button.clicked.connect(self.edit_state)
         self.states_toolbar_layout.addWidget(edit_state_button)
         
         delete_state_button = QPushButton("Delete State")
+        delete_state_button.setMinimumWidth(100)
+        delete_state_button.setMinimumHeight(30)
         delete_state_button.clicked.connect(self.delete_state)
         self.states_toolbar_layout.addWidget(delete_state_button)
         
@@ -156,14 +162,20 @@ class AutomataPage(BasePage):
         self.transitions_layout.addWidget(self.transitions_toolbar)
         
         add_transition_button = QPushButton("Add Transition")
+        add_transition_button.setMinimumWidth(120)
+        add_transition_button.setMinimumHeight(30)
         add_transition_button.clicked.connect(self.add_transition)
         self.transitions_toolbar_layout.addWidget(add_transition_button)
         
         edit_transition_button = QPushButton("Edit Transition")
+        edit_transition_button.setMinimumWidth(120)
+        edit_transition_button.setMinimumHeight(30)
         edit_transition_button.clicked.connect(self.edit_transition)
         self.transitions_toolbar_layout.addWidget(edit_transition_button)
         
         delete_transition_button = QPushButton("Delete Transition")
+        delete_transition_button.setMinimumWidth(120)
+        delete_transition_button.setMinimumHeight(30)
         delete_transition_button.clicked.connect(self.delete_transition)
         self.transitions_toolbar_layout.addWidget(delete_transition_button)
         
@@ -191,14 +203,20 @@ class AutomataPage(BasePage):
         layout.addWidget(self.toolbar)
         
         new_button = QPushButton("New Automaton")
+        new_button.setMinimumWidth(130)
+        new_button.setMinimumHeight(30)
         new_button.clicked.connect(self.create_new_automaton)
         self.toolbar_layout.addWidget(new_button)
         
         load_button = QPushButton("Load Automaton")
+        load_button.setMinimumWidth(130)
+        load_button.setMinimumHeight(30)
         load_button.clicked.connect(self.load_automaton)
         self.toolbar_layout.addWidget(load_button)
         
         save_button = QPushButton("Save Automaton")
+        save_button.setMinimumWidth(130)
+        save_button.setMinimumHeight(30)
         save_button.clicked.connect(self.save_automaton)
         self.toolbar_layout.addWidget(save_button)
         

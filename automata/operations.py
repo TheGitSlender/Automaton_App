@@ -42,8 +42,7 @@ def is_complete(automaton: Automaton) -> bool:
     """
     Check if an automaton is complete.
     
-    An automaton is complete if for each non-final state and symbol, there is at least one transition.
-    Final states are always considered complete regardless of their transitions.
+    An automaton is complete if for each state and symbol, there is at least one transition.
     
     Args:
         automaton: The automaton to check
@@ -52,10 +51,7 @@ def is_complete(automaton: Automaton) -> bool:
         True if the automaton is complete, False otherwise
     """
     for state_name, state in automaton.states.items():
-        # Skip final states when checking completeness
-        if state.is_final:
-            continue
-            
+        # Check all states, including final states
         for symbol in automaton.alphabet:
             next_states = automaton.next_states(state_name, symbol)
             if not next_states:
@@ -95,7 +91,7 @@ def make_complete(automaton: Automaton) -> Automaton:
     sink_state = State(sink_name, False, False)
     states.append(sink_state)
     
-    # Add missing transitions to sink state
+    # Add missing transitions to sink state for all states
     for state in states:
         if state.name == sink_name:
             continue  # Skip the sink state itself

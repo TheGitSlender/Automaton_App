@@ -415,4 +415,11 @@ class AutomataCanvas(QGraphicsView):
         if selected_action == reset_zoom_action:
             self.resetTransform()
         elif selected_action == fit_action:
-            self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio) 
+            self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+    
+    def clear_automaton(self):
+        """
+        Clear the automaton and canvas.
+        """
+        self.automaton = None
+        self.clear_canvas() 

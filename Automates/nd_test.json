@@ -1,8 +1,9 @@
 {
-  "name": "New Automaton",
+  "name": "nd_test",
   "alphabet": [
     "a",
-    "b"
+    "b",
+    "c"
   ],
   "states": [
     "q0",
@@ -17,15 +18,10 @@
     [
       "q0",
       "a",
-      "q0"
-    ],
-    [
-      "q0",
-      "b",
       "q1"
     ],
     [
-      "q1",
+      "q0",
       "a",
       "q2"
     ]

@@ -46,9 +46,10 @@ class AdvancedPage(BasePage):
         # Reference to the current automaton (shared across pages)
         self.automaton = None
         
-        # Reference to the loaded automaton for operations
+        # Reference to the loaded automatons for operations
         self.primary_automaton = None
         self.secondary_automaton = None
+        self.result_automaton = None
         
         # Current file paths
         self.primary_automaton_path = None
@@ -344,8 +345,8 @@ class AdvancedPage(BasePage):
         new_button.clicked.connect(self.create_new_automaton)
         file_ops_layout.addWidget(new_button)
         
-        save_button = QPushButton("Save Current Automaton")
-        save_button.clicked.connect(lambda: self.save_automaton("set_ops"))
+        save_button = QPushButton("Save Result Automaton")
+        save_button.clicked.connect(lambda: self.save_automaton("result"))
         file_ops_layout.addWidget(save_button)
         
         left_layout.addWidget(file_ops_group)
@@ -397,14 +398,37 @@ class AdvancedPage(BasePage):
         equivalence_button.clicked.connect(self.test_equivalence)
         operations_layout.addWidget(equivalence_button)
         
-        # Right panel: Results
+        # Right panel: Multiple canvases and results
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
         splitter.addWidget(right_panel)
         
-        # Automaton visualization
-        self.set_ops_canvas = AutomataCanvas()
-        right_layout.addWidget(self.set_ops_canvas)
+        # Create a horizontal layout for the three canvases
+        canvases_layout = QHBoxLayout()
+        
+        # Primary automaton visualization
+        primary_canvas_group = QGroupBox("Primary Automaton")
+        primary_canvas_layout = QVBoxLayout(primary_canvas_group)
+        self.primary_canvas = AutomataCanvas()
+        primary_canvas_layout.addWidget(self.primary_canvas)
+        canvases_layout.addWidget(primary_canvas_group)
+        
+        # Secondary automaton visualization
+        secondary_canvas_group = QGroupBox("Secondary Automaton")
+        secondary_canvas_layout = QVBoxLayout(secondary_canvas_group)
+        self.secondary_canvas = AutomataCanvas()
+        secondary_canvas_layout.addWidget(self.secondary_canvas)
+        canvases_layout.addWidget(secondary_canvas_group)
+        
+        # Result automaton visualization
+        result_canvas_group = QGroupBox("Result Automaton")
+        result_canvas_layout = QVBoxLayout(result_canvas_group)
+        self.result_canvas = AutomataCanvas()
+        result_canvas_layout.addWidget(self.result_canvas)
+        canvases_layout.addWidget(result_canvas_group)
+        
+        # Add canvases layout to the right panel
+        right_layout.addLayout(canvases_layout)
         
         # Results group
         results_group = QGroupBox("Results")
@@ -419,6 +443,9 @@ class AdvancedPage(BasePage):
         
         # Set the splitter sizes
         splitter.setSizes([300, 700])
+        
+        # Store reference to the old canvas for compatibility
+        self.set_ops_canvas = self.result_canvas
     
     def refresh_automaton_list(self):
         """
@@ -502,13 +529,14 @@ class AdvancedPage(BasePage):
             elif target == "primary":
                 self.primary_automaton = loaded_automaton
                 self.primary_automaton_path = file_path
-                self.set_ops_canvas.update_automaton(loaded_automaton)
+                self.primary_canvas.update_automaton(loaded_automaton)
                 self.primary_automaton_label.setText(os.path.basename(file_path))
                 show_info(self, "Automaton Loaded", f"Loaded {os.path.basename(file_path)} as primary automaton.")
                 
             elif target == "secondary":
                 self.secondary_automaton = loaded_automaton
                 self.secondary_automaton_path = file_path
+                self.secondary_canvas.update_automaton(loaded_automaton)
                 self.secondary_automaton_label.setText(os.path.basename(file_path))
                 show_info(self, "Automaton Loaded", f"Loaded {os.path.basename(file_path)} as secondary automaton.")
                 
@@ -530,7 +558,7 @@ class AdvancedPage(BasePage):
         Save the current automaton.
         
         Args:
-            source: The source tab ("simulation" or "set_ops")
+            source: The source ("simulation", "set_ops", or "result")
         """
         automaton_to_save = None
         
@@ -538,6 +566,14 @@ class AdvancedPage(BasePage):
             automaton_to_save = self.primary_automaton
         elif source == "set_ops":
             automaton_to_save = self.primary_automaton
+        elif source == "result":
+            # Get the result automaton that's displayed on the result canvas
+            result_automaton = getattr(self, "result_automaton", None)
+            if result_automaton:
+                automaton_to_save = result_automaton
+            else:
+                show_warning(self, "No Result", "No result automaton available to save.")
+                return
         
         if not automaton_to_save:
             show_warning(self, "No Automaton", "No automaton to save.")
@@ -589,7 +625,15 @@ class AdvancedPage(BasePage):
         if self.notebook.currentIndex() == 0:  # Simulation tab
             self.sim_canvas.update_automaton(self.primary_automaton)
         else:  # Set Operations tab
-            self.set_ops_canvas.update_automaton(self.primary_automaton)
+            # Update all three canvases with their respective automata
+            self.primary_canvas.update_automaton(self.primary_automaton)
+            self.secondary_canvas.update_automaton(self.secondary_automaton)
+            # Only update result canvas if there's a result automaton
+            if self.result_automaton:
+                self.result_canvas.update_automaton(self.result_automaton)
+            else:
+                # Clear the result canvas if no result automaton
+                self.result_canvas.clear_automaton()
     
     def test_word(self):
         """
@@ -697,15 +741,14 @@ class AdvancedPage(BasePage):
             
             result = union(self.primary_automaton, self.secondary_automaton)
             
-            # Update the primary automaton with the result
-            self.primary_automaton = result
+            # Store the result without changing the primary automaton
+            self.result_automaton = result
             
             # Use a clean name for display
             display_name = result.name.split('_')[0] if '_' in result.name else result.name
-            self.primary_automaton_label.setText(f"Union Result ({display_name})")
             
-            # Update canvas
-            self.set_ops_canvas.update_automaton(result)
+            # Update result canvas only
+            self.result_canvas.update_automaton(result)
             
             # Update results text
             self.set_ops_results_text.clear()
@@ -740,15 +783,14 @@ class AdvancedPage(BasePage):
             
             result = intersection(self.primary_automaton, self.secondary_automaton)
             
-            # Update the primary automaton with the result
-            self.primary_automaton = result
+            # Store the result without changing the primary automaton
+            self.result_automaton = result
             
             # Use a clean name for display
             display_name = result.name.split('_')[0] if '_' in result.name else result.name
-            self.primary_automaton_label.setText(f"Intersection Result ({display_name})")
             
-            # Update canvas
-            self.set_ops_canvas.update_automaton(result)
+            # Update result canvas only
+            self.result_canvas.update_automaton(result)
             
             # Update results text
             self.set_ops_results_text.clear()
@@ -782,15 +824,14 @@ class AdvancedPage(BasePage):
             
             result = complement(self.primary_automaton)
             
-            # Update the primary automaton with the result
-            self.primary_automaton = result
+            # Store the result without changing the primary automaton
+            self.result_automaton = result
             
             # Use a clean name for display
             display_name = result.name.split('_')[0] if '_' in result.name else result.name
-            self.primary_automaton_label.setText(f"Complement Result ({display_name})")
             
-            # Update canvas
-            self.set_ops_canvas.update_automaton(result)
+            # Update result canvas only
+            self.result_canvas.update_automaton(result)
             
             # Update results text
             self.set_ops_results_text.clear()
@@ -824,6 +865,10 @@ class AdvancedPage(BasePage):
             secondary_name = self.secondary_automaton.name.split('_')[0] if '_' in self.secondary_automaton.name else self.secondary_automaton.name
             
             equivalent = are_equivalent(self.primary_automaton, self.secondary_automaton)
+            
+            # Clear the result canvas since there's no result automaton
+            self.result_automaton = None
+            self.result_canvas.clear_automaton()
             
             # Update results text
             self.set_ops_results_text.clear()
