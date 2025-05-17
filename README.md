@@ -136,6 +136,3 @@ Automaton_App/
 - **Login Problems**: Check your username and ensure 2FA code is entered correctly
 - **Automata Operations**: Verify that automata have matching alphabets for set operations
 
-## Note for Developers
-
-Minimize comments and explanatory strings throughout the codebase to reduce verbosity. Focus on self-documenting code with clear function and variable names.
