@@ -357,8 +357,7 @@ class AnalysisPage(BasePage):
             return
         
         # Update the canvas
-        self.canvas.set_automaton(automaton)
-        self.canvas.draw_automaton()
+        self.canvas.update_automaton(automaton)
         
         # Update the details
         self.states_value.setText(str(len(automaton.states)))
