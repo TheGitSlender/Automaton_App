@@ -31,7 +31,7 @@ A Python application for creating, visualizing, and analyzing finite state autom
 
 1. **Clone repository**:
    ```bash
-   git clone https://github.com/yourusername/Automaton_App.git
+   git clone https://github.com/TheGitSlender/Automaton_App.git
    cd Automaton_App
    ```
 
@@ -58,7 +58,7 @@ A Python application for creating, visualizing, and analyzing finite state autom
 
 1. **Clone repository**:
    ```bash
-   git clone https://github.com/yourusername/Automaton_App.git
+   git clone https://github.com/TheGitSlender/Automaton_App.git
    cd Automaton_App
    ```
 
@@ -128,6 +128,7 @@ Automaton_App/
 ├── gui/                # GUI components
 │   ├── main.py         # Main application entry
 │   └── pages/          # Application pages
+│   └── widgets/        # Application widgets
 └── requirements.txt    # Dependencies
 ```
 
@@ -136,3 +137,4 @@ Automaton_App/
 - **Login Problems**: Check your username and ensure 2FA code is entered correctly
 - **Automata Operations**: Verify that automata have matching alphabets for set operations
 
+Feel free to open an issue if you encounter any kind of problem.
