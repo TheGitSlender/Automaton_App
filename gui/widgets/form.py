@@ -1,6 +1,3 @@
-"""
-Form widgets for the application.
-"""
 from PyQt5.QtWidgets import (
     QWidget, QDialog, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QCheckBox, QPushButton,
@@ -10,17 +7,7 @@ from PyQt5.QtCore import Qt
 
 
 class Form(QDialog):
-    """
-    Base class for forms.
-    """
     def __init__(self, parent, title):
-        """
-        Initialize the form.
-        
-        Args:
-            parent: The parent widget
-            title: The form title
-        """
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setModal(True)
@@ -47,46 +34,21 @@ class Form(QDialog):
         self.layout.addLayout(button_layout)
     
     def setup_form(self):
-        """
-        Set up the form fields.
-        This method should be overridden by subclasses.
-        """
         pass
     
     def on_ok(self):
-        """
-        Handle OK button click.
-        This method should be overridden by subclasses.
-        """
         self.accept()
     
     def on_cancel(self):
-        """
-        Handle Cancel button click.
-        """
         self.reject()
 
 
 class StateForm(Form):
-    """
-    Form for editing state properties.
-    """
     def __init__(self, parent, title, state=None):
-        """
-        Initialize the form.
-        
-        Args:
-            parent: The parent widget
-            title: The form title
-            state: The state to edit, or None for a new state
-        """
         self.state = state
         super().__init__(parent, title)
     
     def setup_form(self):
-        """
-        Set up the form fields.
-        """
         form_layout = QFormLayout()
         self.layout.addLayout(form_layout)
         
@@ -109,9 +71,6 @@ class StateForm(Form):
         self.layout.addWidget(self.is_final)
     
     def on_ok(self):
-        """
-        Handle OK button click.
-        """
         self.result = {
             'name': self.name_edit.text(),
             'is_initial': self.is_initial.isChecked(),
@@ -121,29 +80,13 @@ class StateForm(Form):
 
 
 class TransitionForm(Form):
-    """
-    Form for editing transition properties.
-    """
     def __init__(self, parent, title, states, alphabet, transition=None):
-        """
-        Initialize the form.
-        
-        Args:
-            parent: The parent widget
-            title: The form title
-            states: List of available states
-            alphabet: List of available symbols
-            transition: The transition to edit, or None for a new transition
-        """
         self.states = states
         self.alphabet = alphabet
         self.transition = transition
         super().__init__(parent, title)
     
     def setup_form(self):
-        """
-        Set up the form fields.
-        """
         form_layout = QFormLayout()
         self.layout.addLayout(form_layout)
         
@@ -184,9 +127,6 @@ class TransitionForm(Form):
         form_layout.addRow("Destination State:", self.dest_combo)
     
     def on_ok(self):
-        """
-        Handle OK button click.
-        """
         self.result = {
             'source': self.source_combo.currentText(),
             'symbol': self.symbol_combo.currentText(),

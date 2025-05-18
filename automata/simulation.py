@@ -1,6 +1,3 @@
-"""
-Functions for automata simulation: word recognition and generating accepted/rejected words.
-"""
 from typing import List, Set, Tuple, Optional, Generator
 from collections import deque
 import random
@@ -15,19 +12,6 @@ MAX_ATTEMPTS = 1000
 
 
 def simulate(automaton: Automaton, word: str) -> bool:
-    """
-    Simulate an automaton on a word and determine if it accepts.
-    
-    Args:
-        automaton: The automaton to simulate
-        word: Input word to recognize
-        
-    Returns:
-        True if the automaton accepts the word, False otherwise
-        
-    Raises:
-        ValueError: If a symbol in the word is not in the alphabet
-    """
     # Convert to DFA for simpler simulation if needed
     if not is_deterministic(automaton):
         dfa = nfa_to_dfa(automaton)
@@ -59,18 +43,6 @@ def _generate_words_dfs(
     should_accept: bool = True,
     max_count: int = 10
 ) -> List[str]:
-    """
-    Helper function to generate words using DFS.
-    
-    Args:
-        automaton: The automaton to generate words for
-        max_length: Maximum length of generated words
-        should_accept: If True, generate accepted words; if False, generate rejected words
-        max_count: Maximum number of words to generate
-        
-    Returns:
-        List of generated words
-    """
     # Convert to DFA for simpler generation
     if not is_deterministic(automaton):
         dfa = nfa_to_dfa(automaton)
@@ -121,18 +93,6 @@ def _generate_words_bfs(
     should_accept: bool = True,
     max_count: int = 10
 ) -> List[str]:
-    """
-    Helper function to generate words using BFS (better for shorter words).
-    
-    Args:
-        automaton: The automaton to generate words for
-        max_length: Maximum length of generated words
-        should_accept: If True, generate accepted words; if False, generate rejected words
-        max_count: Maximum number of words to generate
-        
-    Returns:
-        List of generated words
-    """
     # Convert to DFA for simpler generation
     if not is_deterministic(automaton):
         dfa = nfa_to_dfa(automaton)
@@ -186,18 +146,6 @@ def generate_accepted_words(
     max_count: int = 10,
     method: str = "bfs"
 ) -> List[str]:
-    """
-    Generate words that the automaton accepts.
-    
-    Args:
-        automaton: The automaton to generate words for
-        max_length: Maximum length of generated words
-        max_count: Maximum number of words to generate
-        method: Generation method ("bfs" or "dfs")
-        
-    Returns:
-        List of accepted words
-    """
     if method.lower() == "bfs":
         return _generate_words_bfs(automaton, max_length, True, max_count)
     else:
@@ -210,18 +158,6 @@ def generate_rejected_words(
     max_count: int = 10,
     method: str = "random"
 ) -> List[str]:
-    """
-    Generate words that the automaton rejects.
-    
-    Args:
-        automaton: The automaton to generate words for
-        max_length: Maximum length of generated words
-        max_count: Maximum number of words to generate
-        method: Generation method ("bfs", "dfs", or "random")
-        
-    Returns:
-        List of rejected words
-    """
     if method.lower() == "random":
         return _generate_random_rejected_words(automaton, max_length, max_count)
     elif method.lower() == "bfs":
@@ -235,17 +171,6 @@ def _generate_random_rejected_words(
     max_length: int = MAX_WORD_LENGTH,
     max_count: int = 10
 ) -> List[str]:
-    """
-    Generate random words and check if they are rejected by the automaton.
-    
-    Args:
-        automaton: The automaton to generate words for
-        max_length: Maximum length of generated words
-        max_count: Maximum number of words to generate
-        
-    Returns:
-        List of rejected words
-    """
     result = []
     attempts = 0
     

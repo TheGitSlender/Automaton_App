@@ -35,5 +35,4 @@ def verify_user_credentials(username: str, password: str):
         update_user(username, "must_change_password", False)
         update_user(username, "temp_password_created_at", None)
 
-    # Les autres actions habituelles...
     return {"status": "success", "user": user}

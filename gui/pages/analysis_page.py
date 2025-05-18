@@ -1,6 +1,3 @@
-"""
-Analysis page for automata properties and transformations.
-"""
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
     QLabel, QPushButton, QTextEdit, QFrame,
@@ -25,56 +22,34 @@ from ..widgets.dialogs import show_info, show_error, show_warning, choose_file_s
 AUTOMATA_SAVE_DIR = "Automates"
 
 class AnalysisPage(BasePage):
-    """
-    Page for analyzing automata properties and performing transformations.
-    """
     def __init__(self, parent):
-        """
-        Initialize the page.
         
-        Args:
-            parent: The parent widget
-        """
-        # Important: Initialize as QWidget first without setting up layout
         QWidget.__init__(self, parent)
         self.parent = parent
         
-        # Reference to the current automaton (shared across pages)
         self.automaton = None
         
-        # Reference to the loaded automaton for analysis
         self.analysis_automaton = None
         
-        # Current automaton file path
         self.current_automaton_path = None
         
-        # Ensure the save directory exists
         os.makedirs(AUTOMATA_SAVE_DIR, exist_ok=True)
         
-        # Set up the UI
         self.setup_ui()
     
     def setup_ui(self):
-        """
-        Set up the UI elements for the page.
-        """
-        # Create main frame
         layout = QVBoxLayout(self)
         
-        # Create paned window
         self.splitter = QSplitter(Qt.Horizontal)
         layout.addWidget(self.splitter)
         
-        # Left panel: Analysis options
         self.left_frame = QWidget()
         self.left_layout = QVBoxLayout(self.left_frame)
         self.splitter.addWidget(self.left_frame)
         
-        # Automaton selector
         self.selector_group = QGroupBox("Automaton Selection")
         selector_layout = QVBoxLayout(self.selector_group)
         
-        # Automaton dropdown and refresh button
         selector_frame = QWidget()
         selector_frame_layout = QHBoxLayout(selector_frame)
         selector_frame_layout.setContentsMargins(0, 0, 0, 0)
@@ -88,7 +63,6 @@ class AnalysisPage(BasePage):
         
         selector_layout.addWidget(selector_frame)
         
-        # Load, save, and delete buttons
         buttons_frame = QWidget()
         buttons_layout = QHBoxLayout(buttons_frame)
         buttons_layout.setContentsMargins(0, 0, 0, 0)
@@ -269,18 +243,6 @@ class AnalysisPage(BasePage):
         
         self.transformations_layout.addWidget(minimize_frame)
         
-        # After transformation actions
-        self.action_group = QGroupBox("Actions")
-        action_layout = QVBoxLayout(self.action_group)
-        
-        # Save transformed automaton button
-        save_transformed_button = QPushButton("Save Transformed Automaton")
-        save_transformed_button.clicked.connect(self.save_automaton)
-        action_layout.addWidget(save_transformed_button)
-        
-        self.left_layout.addWidget(self.action_group)
-        
-        # Add vertical stretch to push everything to the top
         self.left_layout.addStretch()
         
         # Right panel: Automaton visualization
@@ -288,37 +250,45 @@ class AnalysisPage(BasePage):
         self.right_layout = QVBoxLayout(self.right_frame)
         self.splitter.addWidget(self.right_frame)
         
-        # Canvas for visualization
-        self.canvas = AutomataCanvas()
-        self.right_layout.addWidget(self.canvas)
+        # Canvas for drawing automaton
+        self.canvas_frame = QGroupBox("Automaton Visualization")
+        canvas_layout = QVBoxLayout(self.canvas_frame)
         
-        # Results text area
-        self.results_group = QGroupBox("Results")
-        results_layout = QVBoxLayout(self.results_group)
+        self.canvas = AutomataCanvas(self)
+        canvas_layout.addWidget(self.canvas)
         
-        self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)
-        results_layout.addWidget(self.results_text)
+        self.right_layout.addWidget(self.canvas_frame)
         
-        self.right_layout.addWidget(self.results_group)
+        # Details text area
+        self.details_frame = QGroupBox("Details")
+        details_layout = QVBoxLayout(self.details_frame)
         
-        # Set the splitter sizes
+        self.details_text = QTextEdit()
+        self.details_text.setReadOnly(True)
+        details_layout.addWidget(self.details_text)
+        
+        self.right_layout.addWidget(self.details_frame)
+        
+        # Set splitter sizes
         self.splitter.setSizes([300, 700])
+        
+        # Refresh the automaton list
+        self.refresh_automaton_list()
     
     def on_automaton_changed(self):
         """
-        Update the page when the automaton changes.
+        Called when the automaton is changed in another page.
         """
-        # Refresh the automaton list when the shared automaton changes
-        self.refresh_automaton_list()
+        if self.parent and hasattr(self.parent, 'automata_page'):
+            self.automaton = self.parent.automata_page.automaton
+            self.update_analysis()
     
     def refresh_automaton_list(self):
         """
-        Refresh the list of available automata in the Automates directory.
+        Refresh the list of available automata.
         """
         self.automaton_combo.clear()
         
-        # Get all JSON files in the Automates directory
         automaton_files = glob.glob(os.path.join(AUTOMATA_SAVE_DIR, "*.json"))
         
         if not automaton_files:
@@ -328,349 +298,450 @@ class AnalysisPage(BasePage):
         
         self.automaton_combo.setEnabled(True)
         
-        # Add each file to the combo box
-        for file_path in automaton_files:
+        for file_path in sorted(automaton_files):
             file_name = os.path.basename(file_path)
             self.automaton_combo.addItem(file_name, file_path)
         
-        # Select the first item
-        self.automaton_combo.setCurrentIndex(0)
+        if self.current_automaton_path:
+            file_name = os.path.basename(self.current_automaton_path)
+            index = self.automaton_combo.findText(file_name)
+            if index >= 0:
+                self.automaton_combo.setCurrentIndex(index)
     
     def load_selected_automaton(self):
         """
-        Load the selected automaton for analysis.
+        Load the selected automaton from the dropdown.
         """
         if self.automaton_combo.count() == 0 or not self.automaton_combo.isEnabled():
-            show_warning(self, "No Automaton Available", "No automaton files available for analysis.")
+            show_warning(self, "No automaton available", "There are no automata to load.")
             return
         
-        # Get the selected file path
         file_path = self.automaton_combo.currentData()
-        
-        if not file_path or not os.path.exists(file_path):
-            show_error(self, "Error", "Could not find the selected automaton file.")
+        if not file_path:
             return
         
         try:
-            # Load the automaton
             self.analysis_automaton = load_automaton(file_path)
             self.current_automaton_path = file_path
             
-            # Update the UI
             self.update_analysis()
             
-            show_info(self, "Automaton Loaded", f"Loaded {os.path.basename(file_path)} for analysis.")
+            show_info(self, "Automaton Loaded", f"Automaton loaded from {os.path.basename(file_path)}")
+            
+            # Log the action
+            if self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "load_automaton", os.path.basename(file_path))
+                
         except Exception as e:
             show_error(self, "Error Loading Automaton", str(e))
     
     def update_analysis(self):
         """
-        Update the analysis information.
+        Update the analysis display with the current automaton.
         """
-        # Clear results
-        self.results_text.clear()
-        
-        # Reset properties
-        self.determinism_value.setText("N/A")
-        self.completeness_value.setText("N/A")
-        self.states_value.setText("0")
-        self.transitions_value.setText("0")
-        self.alphabet_value.setText("0")
-        
-        # Update canvas
-        self.canvas.update_automaton(self.analysis_automaton)
-        
-        if self.analysis_automaton is None:
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            # Clear the canvas and details
+            self.canvas.clear_automaton()
+            self.details_text.clear()
+            self.states_value.setText("0")
+            self.transitions_value.setText("0")
+            self.alphabet_value.setText("0")
+            self.determinism_value.setText("N/A")
+            self.completeness_value.setText("N/A")
             return
         
-        # Update basic properties
-        self.states_value.setText(str(len(self.analysis_automaton.states)))
-        self.transitions_value.setText(str(len(self.analysis_automaton.transitions)))
-        self.alphabet_value.setText(str(len(self.analysis_automaton.alphabet.symbols)))
+        # Update the canvas
+        self.canvas.set_automaton(automaton)
+        self.canvas.draw_automaton()
+        
+        # Update the details
+        self.states_value.setText(str(len(automaton.states)))
+        self.transitions_value.setText(str(len(automaton.transitions)))
+        self.alphabet_value.setText(str(len(automaton.alphabet)))
+        
+        # Check determinism and completeness
+        self.check_determinism(False)
+        self.check_completeness(False)
     
-    def check_determinism(self):
+    def check_determinism(self, show_message=True):
         """
         Check if the automaton is deterministic.
+        
+        Args:
+            show_message: Whether to show a message with the result
+        
+        Returns:
+            bool: True if deterministic, False otherwise
         """
-        if self.analysis_automaton is None:
-            show_error(self, "Error", "No automaton to analyze. Please load an automaton first.")
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            if show_message:
+                show_warning(self, "No Automaton", "No automaton is loaded or created.")
             return
         
         try:
-            deterministic = is_deterministic(self.analysis_automaton)
-            self.determinism_value.setText("Yes" if deterministic else "No")
+            result = is_deterministic(automaton)
             
-            # Update results text
-            self.results_text.clear()
-            
-            if deterministic:
-                self.results_text.append("The automaton is deterministic.\n")
-                self.results_text.append("A deterministic automaton has:")
-                self.results_text.append("- Exactly one initial state")
-                self.results_text.append("- At most one transition for each state and symbol")
+            if result:
+                self.determinism_value.setText("Yes")
+                self.determinism_value.setStyleSheet("color: green; font-weight: bold;")
+                
+                if show_message:
+                    details = (
+                        "The automaton is deterministic.\n\n"
+                        "Properties of a deterministic automaton:\n"
+                        "- Each state has at most one transition for each symbol\n"
+                        "- No epsilon transitions\n"
+                        "- Exactly one initial state"
+                    )
+                    self.details_text.setText(details)
+                    show_info(self, "Determinism Check", "The automaton is deterministic.")
             else:
-                self.results_text.append("The automaton is non-deterministic.\n")
+                self.determinism_value.setText("No")
+                self.determinism_value.setStyleSheet("color: red; font-weight: bold;")
                 
-                # Find reasons for non-determinism
-                reasons = []
+                if show_message:
+                    details = (
+                        "The automaton is non-deterministic.\n\n"
+                        "Reasons for non-determinism could include:\n"
+                        "- Multiple transitions with the same symbol from a state\n"
+                        "- Presence of epsilon transitions\n"
+                        "- Multiple initial states"
+                    )
+                    self.details_text.setText(details)
+                    show_info(self, "Determinism Check", "The automaton is non-deterministic.")
+            
+            # Log the action
+            if show_message and self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "check_determinism", f"Result: {result}")
                 
-                # Check for multiple initial states
-                initial_states = [s for s in self.analysis_automaton.states.values() if s.is_initial]
-                if len(initial_states) > 1:
-                    reasons.append(f"There are {len(initial_states)} initial states")
-                
-                # Check for states with multiple transitions for the same symbol
-                for state in self.analysis_automaton.states.values():
-                    # Skip final states
-                    if state.is_final:
-                        continue
-                        
-                    symbols_seen = {}
-                    for t in self.analysis_automaton.transitions:
-                        if t.src == state:
-                            if t.symbol in symbols_seen:
-                                reasons.append(f"State '{state.name}' has multiple transitions for symbol '{t.symbol}'")
-                                break
-                            symbols_seen[t.symbol] = True
-                
-                # Show reasons
-                if reasons:
-                    self.results_text.append("Reasons:")
-                    for reason in reasons:
-                        self.results_text.append(f"- {reason}")
+            return result
+            
         except Exception as e:
-            self.results_text.setText(f"Error: {str(e)}")
+            if show_message:
+                show_error(self, "Error Checking Determinism", str(e))
+            return False
     
-    def check_completeness(self):
+    def check_completeness(self, show_message=True):
         """
         Check if the automaton is complete.
+        
+        Args:
+            show_message: Whether to show a message with the result
+        
+        Returns:
+            bool: True if complete, False otherwise
         """
-        if self.analysis_automaton is None:
-            show_error(self, "Error", "No automaton to analyze. Please load an automaton first.")
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            if show_message:
+                show_warning(self, "No Automaton", "No automaton is loaded or created.")
             return
         
         try:
-            complete = is_complete(self.analysis_automaton)
-            self.completeness_value.setText("Yes" if complete else "No")
+            result = is_complete(automaton)
             
-            # Update results text
-            self.results_text.clear()
-            
-            if complete:
-                self.results_text.append("The automaton is complete.\n")
-                self.results_text.append("A complete automaton has a transition defined")
-                self.results_text.append("for every state and every symbol in the alphabet.")
+            if result:
+                self.completeness_value.setText("Yes")
+                self.completeness_value.setStyleSheet("color: green; font-weight: bold;")
+                
+                if show_message:
+                    details = (
+                        "The automaton is complete.\n\n"
+                        "Properties of a complete automaton:\n"
+                        "- Each state has exactly one transition for each symbol in the alphabet\n"
+                        "- All possible inputs are handled from every state"
+                    )
+                    self.details_text.setText(details)
+                    show_info(self, "Completeness Check", "The automaton is complete.")
             else:
-                self.results_text.append("The automaton is not complete.\n")
+                self.completeness_value.setText("No")
+                self.completeness_value.setStyleSheet("color: red; font-weight: bold;")
                 
-                # Find missing transitions
-                missing = []
+                if show_message:
+                    details = (
+                        "The automaton is incomplete.\n\n"
+                        "Reasons for incompleteness:\n"
+                        "- Some states don't have transitions for all symbols in the alphabet\n"
+                        "- Some input sequences may lead to undefined behavior"
+                    )
+                    self.details_text.setText(details)
+                    show_info(self, "Completeness Check", "The automaton is incomplete.")
+            
+            # Log the action
+            if show_message and self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "check_completeness", f"Result: {result}")
                 
-                for state in self.analysis_automaton.states.values():
-                    # Check all states, including final states
-                    for symbol in self.analysis_automaton.alphabet.symbols:
-                        has_transition = False
-                        for t in self.analysis_automaton.transitions:
-                            if t.src == state and t.symbol == symbol:
-                                has_transition = True
-                                break
-                        
-                        if not has_transition:
-                            missing.append(f"State '{state.name}' has no transition for symbol '{symbol}'")
-                
-                # Show missing transitions
-                if missing:
-                    self.results_text.append("Missing transitions:")
-                    for m in missing:
-                        self.results_text.append(f"- {m}")
+            return result
+            
         except Exception as e:
-            self.results_text.setText(f"Error: {str(e)}")
+            if show_message:
+                show_error(self, "Error Checking Completeness", str(e))
+            return False
     
     def convert_to_dfa(self):
         """
-        Convert the automaton to a DFA.
+        Convert the current automaton from NFA to DFA.
         """
-        if self.analysis_automaton is None:
-            show_error(self, "Error", "No automaton to convert. Please load an automaton first.")
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            show_warning(self, "No Automaton", "No automaton is loaded or created.")
             return
         
         try:
             # Check if already deterministic
-            if is_deterministic(self.analysis_automaton):
-                show_info(self, "Info", "The automaton is already deterministic")
+            if is_deterministic(automaton):
+                show_info(self, "Already Deterministic", "The automaton is already deterministic.")
                 return
             
             # Convert to DFA
-            dfa = nfa_to_dfa(self.analysis_automaton)
+            dfa = nfa_to_dfa(automaton)
             
-            # Update the automaton
+            # Save the DFA
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_path = os.path.join(AUTOMATA_SAVE_DIR, f"dfa_{timestamp}.json")
+            save_automaton(dfa, file_path)
+            
+            # Load the DFA for analysis
             self.analysis_automaton = dfa
+            self.current_automaton_path = file_path
             
-            # Update UI
+            # Update the UI
             self.update_analysis()
+            self.refresh_automaton_list()
             
-            # Show results
-            self.results_text.clear()
-            self.results_text.append("Successfully converted NFA to DFA.")
-            self.results_text.append(f"The DFA has {len(dfa.states)} states and {len(dfa.transitions)} transitions.")
+            # Show success message
+            show_info(self, "Conversion Complete", "NFA successfully converted to DFA.")
             
-            # Update main window
-            self.notify_automaton_changed()
+            # Log the action
+            if self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "convert_to_dfa", f"File: {os.path.basename(file_path)}")
+                
         except Exception as e:
-            self.results_text.setText(f"Error: {str(e)}")
+            show_error(self, "Error Converting to DFA", str(e))
     
     def make_automaton_complete(self):
         """
-        Make the automaton complete.
+        Make the current automaton complete.
         """
-        if self.analysis_automaton is None:
-            show_error(self, "Error", "No automaton to complete. Please load an automaton first.")
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            show_warning(self, "No Automaton", "No automaton is loaded or created.")
             return
         
         try:
             # Check if already complete
-            if is_complete(self.analysis_automaton):
-                show_info(self, "Info", "The automaton is already complete")
+            if is_complete(automaton):
+                show_info(self, "Already Complete", "The automaton is already complete.")
                 return
             
             # Make complete
-            complete_automaton = make_complete(self.analysis_automaton)
+            complete_automaton = make_complete(automaton)
             
-            # Update the automaton
+            # Save the complete automaton
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_path = os.path.join(AUTOMATA_SAVE_DIR, f"complete_{timestamp}.json")
+            save_automaton(complete_automaton, file_path)
+            
+            # Load the complete automaton for analysis
             self.analysis_automaton = complete_automaton
+            self.current_automaton_path = file_path
             
-            # Update UI
+            # Update the UI
             self.update_analysis()
+            self.refresh_automaton_list()
             
-            # Show results
-            self.results_text.clear()
-            self.results_text.append("Successfully made the automaton complete.")
-            self.results_text.append(f"Added a sink state and {len(complete_automaton.transitions) - len(self.analysis_automaton.transitions)} transitions.")
+            # Show success message
+            show_info(self, "Completion Done", "Automaton successfully made complete.")
             
-            # Update main window
-            self.notify_automaton_changed()
+            # Log the action
+            if self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "make_complete", f"File: {os.path.basename(file_path)}")
+                
         except Exception as e:
-            self.results_text.setText(f"Error: {str(e)}")
+            show_error(self, "Error Making Automaton Complete", str(e))
     
     def minimize_automaton(self):
         """
-        Minimize the automaton.
+        Minimize the current automaton.
         """
-        if self.analysis_automaton is None:
-            show_error(self, "Error", "No automaton to minimize. Please load an automaton first.")
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            show_warning(self, "No Automaton", "No automaton is loaded or created.")
             return
         
         try:
-            # Check if deterministic
-            if not is_deterministic(self.analysis_automaton):
-                show_error(self, "Error", "Only deterministic automata can be minimized.\nConvert to DFA first.")
-                return
+            # Check if automaton is deterministic
+            if not is_deterministic(automaton):
+                reply = QMessageBox.question(
+                    self, "Non-Deterministic Automaton",
+                    "The automaton is non-deterministic. Convert to DFA first?",
+                    QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes
+                )
+                
+                if reply == QMessageBox.Yes:
+                    automaton = nfa_to_dfa(automaton)
+                else:
+                    return
             
-            # Minimize
-            minimized = minimize_automaton(self.analysis_automaton)
+            # Minimize the automaton
+            minimized = minimize_automaton(automaton)
             
-            # Update the automaton
+            # Save the minimized automaton
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_path = os.path.join(AUTOMATA_SAVE_DIR, f"minimized_{timestamp}.json")
+            save_automaton(minimized, file_path)
+            
+            # Load the minimized automaton for analysis
             self.analysis_automaton = minimized
+            self.current_automaton_path = file_path
             
-            # Update UI
+            # Update the UI
             self.update_analysis()
+            self.refresh_automaton_list()
             
-            # Show results
-            self.results_text.clear()
-            self.results_text.append("Successfully minimized the automaton.")
-            self.results_text.append(f"The minimized automaton has {len(minimized.states)} states and {len(minimized.transitions)} transitions.")
+            # Show success message
+            show_info(self, "Minimization Complete", "Automaton successfully minimized.")
             
-            # Update main window
-            self.notify_automaton_changed()
+            # Log the action
+            if self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "minimize_automaton", f"File: {os.path.basename(file_path)}")
+                
         except Exception as e:
-            self.results_text.setText(f"Error: {str(e)}")
+            show_error(self, "Error Minimizing Automaton", str(e))
     
     def notify_automaton_changed(self):
         """
-        Notify the parent that the automaton has changed.
+        Notify other pages that the automaton has changed.
         """
-        # Update automaton in main window and other pages
-        if hasattr(self.window(), "automata_page") and hasattr(self.window().automata_page, "on_automaton_changed"):
-            self.window().automata_page.update_automaton(self.analysis_automaton)
-        
-        if hasattr(self.window(), "advanced_page") and hasattr(self.window().advanced_page, "on_automaton_changed"):
-            self.window().advanced_page.update_automaton(self.analysis_automaton)
+        if self.parent and hasattr(self.parent, 'automata_page'):
+            self.parent.automata_page.automaton = self.analysis_automaton
+            
+            # Notify other pages
+            if hasattr(self.parent, 'advanced_page'):
+                self.parent.advanced_page.on_automaton_changed()
     
     def save_automaton(self):
         """
-        Save the current analysis automaton to a file.
+        Save the current automaton to a file.
         """
-        if not self.analysis_automaton:
-            show_warning(self, "No Automaton", "No automaton to save.")
+        if self.analysis_automaton:
+            automaton = self.analysis_automaton
+        elif self.automaton:
+            automaton = self.automaton
+        else:
+            show_warning(self, "No Automaton", "No automaton is loaded or created.")
             return
         
-        # Show file dialog
-        file_path = choose_file_save(
-            self,
-            "Save Automaton",
-            [("JSON Files", "*.json"), ("All Files", "*.*")],
-            ".json"
-        )
-        
-        if not file_path:
-            return  # Canceled
-        
-        # Add .json extension if not already present
-        if not file_path.endswith(".json"):
-            file_path += ".json"
-        
-        # Save the automaton
         try:
-            save_automaton(self.analysis_automaton, file_path)
-            self.current_automaton_path = file_path
-            show_info(self, "Automaton Saved", f"Automaton saved successfully to {file_path}.")
+            # Ask for file path
+            file_path = choose_file_save(
+                self, 
+                "Save Automaton", 
+                AUTOMATA_SAVE_DIR, 
+                "JSON Files (*.json)"
+            )
             
-            # Refresh automaton lists
+            if not file_path:
+                return
+            
+            # Ensure extension
+            if not file_path.endswith('.json'):
+                file_path += '.json'
+            
+            # Save the automaton
+            save_automaton(automaton, file_path)
+            
+            # Update current path
+            self.current_automaton_path = file_path
+            
+            # Refresh the list
             self.refresh_automaton_list()
+            
+            # Show success message
+            show_info(self, "Save Successful", f"Automaton saved to {os.path.basename(file_path)}")
+            
+            # Log the action
+            if self.parent and hasattr(self.parent, 'current_user'):
+                from Security.security.logs import log_action
+                username = self.parent.current_user.get("username", "unknown")
+                log_action(username, "save_automaton", f"File: {os.path.basename(file_path)}")
+                
         except Exception as e:
             show_error(self, "Error Saving Automaton", str(e))
     
     def delete_automaton(self):
         """
-        Delete the selected automaton.
+        Delete the selected automaton file.
         """
         if self.automaton_combo.count() == 0 or not self.automaton_combo.isEnabled():
-            show_warning(self, "No Automaton Selected", "No automaton selected for deletion.")
+            show_warning(self, "No Automaton", "No automaton is available to delete.")
             return
         
-        # Get the selected file path
         file_path = self.automaton_combo.currentData()
+        if not file_path:
+            return
+        
         file_name = os.path.basename(file_path)
         
-        if not file_path or not os.path.exists(file_path):
-            show_error(self, "Error", "Could not find the selected automaton file.")
-            return
-        
-        # Confirm deletion
         reply = QMessageBox.question(
-            self, 
-            "Confirm Deletion", 
-            f"Are you sure you want to delete '{file_name}'?\n\nThis action cannot be undone.",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            self, "Delete Automaton",
+            f"Are you sure you want to delete '{file_name}'?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
-        if reply != QMessageBox.Yes:
-            return
-        
-        try:
-            # Delete the file
-            os.remove(file_path)
-            
-            # If the deleted file was currently loaded, reset the analysis view
-            if self.current_automaton_path == file_path:
-                self.analysis_automaton = None
-                self.current_automaton_path = None
-                self.update_analysis()
-            
-            # Refresh automaton lists
-            self.refresh_automaton_list()
-            
-            show_info(self, "Automaton Deleted", f"Automaton {file_name} deleted successfully.")
-        except Exception as e:
-            show_error(self, "Error Deleting Automaton", str(e)) 
+        if reply == QMessageBox.Yes:
+            try:
+                os.remove(file_path)
+                
+                # If the deleted file was the current one, clear it
+                if self.current_automaton_path == file_path:
+                    self.current_automaton_path = None
+                    self.analysis_automaton = None
+                    self.update_analysis()
+                
+                # Refresh the list
+                self.refresh_automaton_list()
+                
+                # Show success message
+                show_info(self, "Delete Successful", f"Automaton '{file_name}' deleted.")
+                
+                # Log the action
+                if self.parent and hasattr(self.parent, 'current_user'):
+                    from Security.security.logs import log_action
+                    username = self.parent.current_user.get("username", "unknown")
+                    log_action(username, "delete_automaton", f"File: {file_name}")
+                    
+            except Exception as e:
+                show_error(self, "Error Deleting Automaton", str(e)) 

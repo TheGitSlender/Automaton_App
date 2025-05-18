@@ -1,6 +1,4 @@
-"""
-Canvas for visualizing automata.
-"""
+
 import math
 from PyQt5.QtWidgets import (
     QGraphicsScene, QGraphicsView, QGraphicsItem, 
@@ -12,16 +10,7 @@ from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QPainterPath, QFont
 
 
 class AutomataCanvas(QGraphicsView):
-    """
-    Canvas for visualizing automata.
-    """
     def __init__(self, parent=None):
-        """
-        Initialize the canvas.
-        
-        Args:
-            parent: The parent widget
-        """
         super().__init__(parent)
         self.automaton = None
         self.state_items = {}
@@ -54,20 +43,11 @@ class AutomataCanvas(QGraphicsView):
         self.clear_canvas()
     
     def clear_canvas(self):
-        """
-        Clear the canvas.
-        """
         self.scene.clear()
         self.state_items = {}
         self.transition_items = []
     
     def update_automaton(self, automaton):
-        """
-        Update the canvas with a new automaton.
-        
-        Args:
-            automaton: The automaton to visualize
-        """
         self.automaton = automaton
         self.clear_canvas()
         
@@ -81,9 +61,6 @@ class AutomataCanvas(QGraphicsView):
         self.add_transitions()
     
     def add_states(self):
-        """
-        Add states to the canvas.
-        """
         if not self.automaton:
             return
         
@@ -103,13 +80,6 @@ class AutomataCanvas(QGraphicsView):
             self.add_state(state, x, y)
     
     def add_state(self, state, x, y):
-        """
-        Add a state to the canvas.
-        
-        Args:
-            state: The state to add
-            x, y: The position
-        """
         # Create state ellipse
         ellipse_item = QGraphicsEllipseItem(
             -self.state_radius, -self.state_radius,
@@ -187,9 +157,6 @@ class AutomataCanvas(QGraphicsView):
         }
     
     def add_transitions(self):
-        """
-        Add transitions to the canvas.
-        """
         if not self.automaton:
             return
         

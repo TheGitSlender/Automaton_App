@@ -1,6 +1,3 @@
-"""
-Main entry point for the Automata GUI application.
-"""
 import os
 import sys
 from PyQt5.QtWidgets import (
@@ -181,13 +178,7 @@ QStatusBar {
 
 
 class AutomataApp(QMainWindow):
-    """
-    Main application class for the Automata GUI.
-    """
     def __init__(self):
-        """
-        Initialize the application.
-        """
         super().__init__()
         self.setWindowTitle("Automata App")
         self.resize(1000, 700)
@@ -204,7 +195,7 @@ class AutomataApp(QMainWindow):
         try:
             self.setWindowIcon(QIcon("resources/icon.ico"))
         except:
-            pass  # Icon not found, ignore
+            pass
         
         # Create a central widget to hold either the login page or the main app
         self.central_widget = QWidget()
@@ -230,12 +221,6 @@ class AutomataApp(QMainWindow):
         self.current_user = None
     
     def on_login_success(self, user):
-        """
-        Called when login is successful.
-        
-        Args:
-            user: The user who logged in
-        """
         # Store the current user
         self.current_user = user
         
@@ -246,9 +231,6 @@ class AutomataApp(QMainWindow):
         self.create_main_app()
     
     def create_main_app(self):
-        """
-        Create the main application UI after login.
-        """
         # Create main app widget
         self.main_app_widget = QWidget()
         main_layout = QVBoxLayout(self.main_app_widget)
@@ -282,9 +264,6 @@ class AutomataApp(QMainWindow):
         self.status_bar.showMessage(f"Logged in as {username} ({role})")
     
     def create_menu(self):
-        """
-        Create the application menu.
-        """
         # Create menu bar
         menu_bar = self.menuBar()
         
@@ -378,9 +357,6 @@ class AutomataApp(QMainWindow):
         help_menu.addAction(about_action)
     
     def logout(self):
-        """
-        Handle logout action.
-        """
         reply = QMessageBox.question(
             self, "Logout", "Are you sure you want to logout?", 
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
@@ -411,12 +387,6 @@ class AutomataApp(QMainWindow):
             self.status_bar.showMessage("Please login to continue")
     
     def on_tab_changed(self, index):
-        """
-        Handle tab change event.
-        
-        Args:
-            index: The index of the selected tab
-        """
         tab_text = self.notebook.tabText(index)
         
         if tab_text == "Analysis":
@@ -425,9 +395,6 @@ class AutomataApp(QMainWindow):
             self.advanced_page.update_advanced()
     
     def show_about(self):
-        """
-        Show the about dialog.
-        """
         about_dialog = QDialog(self)
         about_dialog.setWindowTitle("About Automata App")
         about_dialog.setFixedSize(500, 400)
@@ -502,20 +469,10 @@ class AutomataApp(QMainWindow):
         about_dialog.exec_()
     
     def show_message(self, message, message_type="info"):
-        """
-        Show a message in the status bar.
-        
-        Args:
-            message: The message to show
-            message_type: The type of message ("info", "warning", "error")
-        """
         self.status_bar.showMessage(message)
 
 
 def main():
-    """
-    Main function for the application.
-    """
     app = QApplication(sys.argv)
     window = AutomataApp()
     window.show()

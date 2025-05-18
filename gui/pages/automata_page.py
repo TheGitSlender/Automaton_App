@@ -1,6 +1,4 @@
-"""
-Automata page for creating, loading, saving, and editing automata.
-"""
+
 import os
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, 
@@ -65,9 +63,6 @@ class AutomataPage(BasePage):
         self.page_exiting.connect(self.save_automaton_if_modified)
     
     def setup_ui(self):
-        """
-        Set up the UI elements for the page.
-        """
         # Create main layout - this is the only layout applied to 'self'
         layout = QVBoxLayout(self)
         
@@ -224,9 +219,6 @@ class AutomataPage(BasePage):
         self.toolbar_layout.addStretch()
     
     def update_ui(self):
-        """
-        Update the UI elements with the current automaton data.
-        """
         # Clear the lists
         self.states_listbox.clear()
         self.transitions_listbox.clear()

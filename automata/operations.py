@@ -10,19 +10,6 @@ from .models import State, Alphabet, Transition, Automaton
 
 
 def is_deterministic(automaton: Automaton) -> bool:
-    """
-    Check if an automaton is deterministic.
-    
-    An automaton is deterministic if:
-    1. It has exactly one initial state
-    2. For each state and symbol, there is at most one transition
-    
-    Args:
-        automaton: The automaton to check
-        
-    Returns:
-        True if the automaton is deterministic, False otherwise
-    """
     # Check if there's exactly one initial state
     initial_states = [s for s in automaton.states.values() if s.is_initial]
     if len(initial_states) != 1:
@@ -39,17 +26,6 @@ def is_deterministic(automaton: Automaton) -> bool:
 
 
 def is_complete(automaton: Automaton) -> bool:
-    """
-    Check if an automaton is complete.
-    
-    An automaton is complete if for each state and symbol, there is at least one transition.
-    
-    Args:
-        automaton: The automaton to check
-        
-    Returns:
-        True if the automaton is complete, False otherwise
-    """
     for state_name, state in automaton.states.items():
         # Check all states, including final states
         for symbol in automaton.alphabet:
@@ -61,15 +37,6 @@ def is_complete(automaton: Automaton) -> bool:
 
 
 def make_complete(automaton: Automaton) -> Automaton:
-    """
-    Make an automaton complete by adding a sink state and missing transitions.
-    
-    Args:
-        automaton: The automaton to make complete
-        
-    Returns:
-        A new complete automaton
-    """
     if is_complete(automaton):
         return automaton  # Already complete
     
@@ -109,15 +76,6 @@ def make_complete(automaton: Automaton) -> Automaton:
 
 
 def nfa_to_dfa(automaton: Automaton) -> Automaton:
-    """
-    Convert a non-deterministic finite automaton (NFA) to a deterministic finite automaton (DFA).
-    
-    Args:
-        automaton: The NFA to convert
-        
-    Returns:
-        Equivalent DFA
-    """
     if is_deterministic(automaton):
         return automaton  # Already deterministic
     
@@ -176,15 +134,6 @@ def nfa_to_dfa(automaton: Automaton) -> Automaton:
 
 
 def _get_clean_name(name: str) -> str:
-    """
-    Generate a clean automaton name, removing operation chains and repeated segments.
-    
-    Args:
-        name: The original automaton name
-        
-    Returns:
-        A clean, simplified name
-    """
     # If the name is already short, just return it
     if len(name) < 30:
         return name
@@ -198,12 +147,7 @@ def _get_clean_name(name: str) -> str:
         if op in base_name:
             base_name = base_name.split(op)[0]
     
-    # If we have a base name, use it; otherwise use a portion of the original
-    if base_name and len(base_name) > 0:
-        return base_name
-    else:
-        # Just use first part of name to avoid excessive length
-        return name[:25]
+    return base_name
 
 
 def minimize_automaton(automaton: Automaton) -> Automaton:

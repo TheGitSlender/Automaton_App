@@ -1,6 +1,3 @@
-"""
-Dialog utilities for the application.
-"""
 from PyQt5.QtWidgets import (
     QMessageBox, QInputDialog, QFileDialog, QDialog,
     QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, 
@@ -11,53 +8,18 @@ from PyQt5.QtCore import Qt
 
 
 def show_info(parent, title, message):
-    """
-    Show an information dialog.
-    
-    Args:
-        parent: The parent widget
-        title: The dialog title
-        message: The message to show
-    """
     QMessageBox.information(parent, title, message)
 
 
 def show_warning(parent, title, message):
-    """
-    Show a warning dialog.
-    
-    Args:
-        parent: The parent widget
-        title: The dialog title
-        message: The message to show
-    """
     QMessageBox.warning(parent, title, message)
 
 
 def show_error(parent, title, message):
-    """
-    Show an error dialog.
-    
-    Args:
-        parent: The parent widget
-        title: The dialog title
-        message: The message to show
-    """
     QMessageBox.critical(parent, title, message)
 
 
 def ask_yes_no(parent, title, message):
-    """
-    Show a yes/no dialog.
-    
-    Args:
-        parent: The parent widget
-        title: The dialog title
-        message: The message to show
-    
-    Returns:
-        True if the user clicked Yes, False otherwise
-    """
     reply = QMessageBox.question(
         parent, title, message, 
         QMessageBox.Yes | QMessageBox.No, QMessageBox.No
@@ -66,17 +28,6 @@ def ask_yes_no(parent, title, message):
 
 
 def choose_file_open(parent, title, filetypes=None):
-    """
-    Show a file open dialog.
-    
-    Args:
-        parent: The parent widget
-        title: The dialog title
-        filetypes: A list of filetypes to show, e.g., [("Text files", "*.txt"), ("All files", "*.*")]
-    
-    Returns:
-        The selected file path or None if canceled
-    """
     if filetypes:
         filter_str = ";;".join([f"{desc} ({ext})" for desc, ext in filetypes])
     else:
@@ -90,18 +41,6 @@ def choose_file_open(parent, title, filetypes=None):
 
 
 def choose_file_save(parent, title, filetypes=None, default_ext=None):
-    """
-    Show a file save dialog.
-    
-    Args:
-        parent: The parent widget
-        title: The dialog title
-        filetypes: A list of filetypes to show, e.g., [("Text files", "*.txt"), ("All files", "*.*")]
-        default_ext: The default extension to add
-    
-    Returns:
-        The selected file path or None if canceled
-    """
     if filetypes:
         filter_str = ";;".join([f"{desc} ({ext})" for desc, ext in filetypes])
     else:
@@ -115,19 +54,7 @@ def choose_file_save(parent, title, filetypes=None, default_ext=None):
 
 
 class InputDialog(QDialog):
-    """
-    A dialog for simple input.
-    """
     def __init__(self, parent, title, prompt, default=""):
-        """
-        Initialize the dialog.
-        
-        Args:
-            parent: The parent widget
-            title: The dialog title
-            prompt: The prompt text
-            default: The default value
-        """
         super().__init__(parent)
         self.setWindowTitle(title)
         self.resize(300, 100)
@@ -153,31 +80,13 @@ class InputDialog(QDialog):
         self.layout.addLayout(button_layout)
     
     def get_input(self):
-        """
-        Get the input text.
-        
-        Returns:
-            The input text or None if canceled
-        """
         if self.exec_() == QDialog.Accepted:
             return self.input.text()
         return None
 
 
 class ListSelectionDialog(QDialog):
-    """
-    Dialog for selecting an item from a list.
-    """
     def __init__(self, parent, title, prompt, items):
-        """
-        Initialize the dialog.
-        
-        Args:
-            parent: The parent widget
-            title: The dialog title
-            prompt: The prompt text
-            items: List of items to select from
-        """
         super().__init__(parent)
         self.setWindowTitle(title)
         self.resize(300, 300)
@@ -189,7 +98,6 @@ class ListSelectionDialog(QDialog):
         self.prompt_label = QLabel(prompt)
         layout.addWidget(self.prompt_label)
         
-        # Create listbox
         self.listbox = QListWidget()
         self.listbox.addItems(items)
         self.listbox.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -208,9 +116,6 @@ class ListSelectionDialog(QDialog):
         layout.addLayout(button_layout)
     
     def accept(self):
-        """
-        Handle OK button click.
-        """
         selected_items = self.listbox.selectedItems()
         if selected_items:
             item = selected_items[0]
@@ -219,12 +124,6 @@ class ListSelectionDialog(QDialog):
         super().accept()
     
     def get_selection(self):
-        """
-        Get the selected item.
-        
-        Returns:
-            The selected item or None if canceled
-        """
         if self.exec_() == QDialog.Accepted:
             return self.result
         return None 

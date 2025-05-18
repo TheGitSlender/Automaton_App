@@ -9,16 +9,6 @@ from .models import State, Alphabet, Transition, Automaton
 
 
 def save_automaton(automaton: Automaton, file_path: str) -> None:
-    """
-    Save an automaton to a JSON file.
-    
-    Args:
-        automaton: The automaton to save
-        file_path: Path to save the JSON file
-        
-    Raises:
-        IOError: If the file cannot be written
-    """
     # Create JSON representation
     data = {
         "name": automaton.name,
@@ -40,19 +30,6 @@ def save_automaton(automaton: Automaton, file_path: str) -> None:
 
 
 def load_automaton(file_path: str) -> Automaton:
-    """
-    Load an automaton from a JSON file.
-    
-    Args:
-        file_path: Path to the JSON file
-        
-    Returns:
-        Loaded automaton
-        
-    Raises:
-        IOError: If the file cannot be read
-        ValueError: If the JSON format is invalid
-    """
     # Read from file
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -102,15 +79,6 @@ def load_automaton(file_path: str) -> Automaton:
 
 
 def automaton_to_dict(automaton: Automaton) -> Dict[str, Any]:
-    """
-    Convert an automaton to a dictionary representation.
-    
-    Args:
-        automaton: The automaton to convert
-        
-    Returns:
-        Dictionary representation of the automaton
-    """
     return {
         "name": automaton.name,
         "alphabet": automaton.alphabet.symbols,
@@ -124,18 +92,6 @@ def automaton_to_dict(automaton: Automaton) -> Dict[str, Any]:
 
 
 def dict_to_automaton(data: Dict[str, Any]) -> Automaton:
-    """
-    Convert a dictionary representation to an automaton.
-    
-    Args:
-        data: Dictionary representation of the automaton
-        
-    Returns:
-        Converted automaton
-        
-    Raises:
-        ValueError: If the dictionary format is invalid
-    """
     # Validate required fields
     required_fields = ["name", "alphabet", "states", "initial", "finals", "transitions"]
     for field in required_fields:

@@ -1,6 +1,4 @@
-"""
-Advanced page for automata simulation and set operations.
-"""
+
 import os
 import glob
 from PyQt5.QtWidgets import (
@@ -29,16 +27,7 @@ from ..widgets.dialogs import (
 AUTOMATA_SAVE_DIR = "Automates"
 
 class AdvancedPage(BasePage):
-    """
-    Page for advanced automata operations: simulation and set operations.
-    """
     def __init__(self, parent):
-        """
-        Initialize the page.
-        
-        Args:
-            parent: The parent widget
-        """
         # Important: Initialize as QWidget first without setting up layout
         QWidget.__init__(self, parent)
         self.parent = parent
@@ -62,9 +51,6 @@ class AdvancedPage(BasePage):
         self.setup_ui()
     
     def setup_ui(self):
-        """
-        Set up the UI elements for the page.
-        """
         # Create main layout
         layout = QVBoxLayout(self)
         
@@ -91,12 +77,6 @@ class AdvancedPage(BasePage):
         self.notebook.currentChanged.connect(self.on_tab_changed)
     
     def setup_simulation_tab(self, parent):
-        """
-        Set up the Simulation tab.
-        
-        Args:
-            parent: The parent widget
-        """
         # Create layout for the tab
         layout = QVBoxLayout(parent)
         
@@ -264,12 +244,6 @@ class AdvancedPage(BasePage):
         splitter.setSizes([300, 700])
     
     def setup_set_operations_tab(self, parent):
-        """
-        Set up the Set Operations tab.
-        
-        Args:
-            parent: The parent widget
-        """
         # Create layout for the tab
         layout = QVBoxLayout(parent)
         
@@ -448,9 +422,6 @@ class AdvancedPage(BasePage):
         self.set_ops_canvas = self.result_canvas
     
     def refresh_automaton_list(self):
-        """
-        Refresh the lists of available automata in the Automates directory.
-        """
         # Clear all combo boxes
         self.sim_automaton_combo.clear()
         self.primary_automaton_combo.clear()
@@ -544,9 +515,6 @@ class AdvancedPage(BasePage):
             show_error(self, "Error Loading Automaton", str(e))
     
     def create_new_automaton(self):
-        """
-        Create a new automaton.
-        """
         # Delegate to the automata page
         if hasattr(self.window(), "automata_page") and hasattr(self.window().automata_page, "create_new_automaton"):
             self.window().automata_page.create_new_automaton()
@@ -554,12 +522,6 @@ class AdvancedPage(BasePage):
             self.window().notebook.setCurrentIndex(0)
     
     def save_automaton(self, source):
-        """
-        Save the current automaton.
-        
-        Args:
-            source: The source ("simulation", "set_ops", or "result")
-        """
         automaton_to_save = None
         
         if source == "simulation":
@@ -606,17 +568,11 @@ class AdvancedPage(BasePage):
             show_error(self, "Error Saving Automaton", str(e))
     
     def on_automaton_changed(self):
-        """
-        Update the page when the automaton changes.
-        """
         self.automaton = self.window().automata_page.automaton if hasattr(self.window(), "automata_page") else None
         self.refresh_automaton_list()
         self.update_advanced()
     
     def update_advanced(self):
-        """
-        Update the advanced page UI.
-        """
         # Clear results
         self.sim_results_text.clear()
         self.set_ops_results_text.clear()
@@ -636,9 +592,6 @@ class AdvancedPage(BasePage):
                 self.result_canvas.clear_automaton()
     
     def test_word(self):
-        """
-        Test a word against the loaded automaton.
-        """
         if not self.primary_automaton:
             show_error(self, "Error", "No automaton loaded for simulation.")
             return
@@ -671,12 +624,6 @@ class AdvancedPage(BasePage):
             self.sim_results_text.setText(f"Error: {str(e)}")
     
     def generate_words(self, accepted=True):
-        """
-        Generate accepted or rejected words for the loaded automaton.
-        
-        Args:
-            accepted: If True, generate accepted words; if False, generate rejected words
-        """
         if not self.primary_automaton:
             show_error(self, "Error", "No automaton loaded for simulation.")
             return
@@ -724,9 +671,6 @@ class AdvancedPage(BasePage):
             self.sim_results_text.setText(f"Error: {str(e)}")
     
     def perform_union(self):
-        """
-        Perform union operation between primary and secondary automata.
-        """
         if not self.primary_automaton or not self.secondary_automaton:
             show_error(self, "Error", "Both primary and secondary automata must be loaded.")
             return
@@ -766,9 +710,6 @@ class AdvancedPage(BasePage):
             self.notebook.currentWidget().layout().itemAt(0).widget().setSizes(splitter_sizes)
     
     def perform_intersection(self):
-        """
-        Perform intersection operation between primary and secondary automata.
-        """
         if not self.primary_automaton or not self.secondary_automaton:
             show_error(self, "Error", "Both primary and secondary automata must be loaded.")
             return
@@ -808,9 +749,6 @@ class AdvancedPage(BasePage):
             self.notebook.currentWidget().layout().itemAt(0).widget().setSizes(splitter_sizes)
     
     def perform_complement(self):
-        """
-        Perform complement operation on the primary automaton.
-        """
         if not self.primary_automaton:
             show_error(self, "Error", "Primary automaton must be loaded.")
             return
@@ -849,9 +787,6 @@ class AdvancedPage(BasePage):
             self.notebook.currentWidget().layout().itemAt(0).widget().setSizes(splitter_sizes)
     
     def test_equivalence(self):
-        """
-        Test if the primary and secondary automata are equivalent.
-        """
         if not self.primary_automaton or not self.secondary_automaton:
             show_error(self, "Error", "Both primary and secondary automata must be loaded.")
             return
@@ -885,9 +820,6 @@ class AdvancedPage(BasePage):
             self.notebook.currentWidget().layout().itemAt(0).widget().setSizes(splitter_sizes)
     
     def notify_automaton_changed(self):
-        """
-        Notify the parent that the automaton has changed.
-        """
         # Update automaton in main window and other pages
         if hasattr(self.window(), "automata_page") and hasattr(self.window().automata_page, "on_automaton_changed"):
             self.window().automata_page.update_automaton(self.automaton)
@@ -896,12 +828,6 @@ class AdvancedPage(BasePage):
             self.window().analysis_page.update_automaton(self.automaton)
     
     def on_tab_changed(self, index):
-        """
-        Handle tab changed event to update the current splitter reference.
-        
-        Args:
-            index: Index of the selected tab
-        """
         if index == 0:  # Simulation tab
             self.splitter = self.simulation_splitter
         else:  # Set Operations tab

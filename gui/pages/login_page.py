@@ -29,18 +29,15 @@ class SetupKeyDialog(QDialog):
         self.setMinimumWidth(500)
         self.setMinimumHeight(350)
         
-        # Set up the UI
         layout = QVBoxLayout(self)
         layout.setSpacing(20)
         layout.setContentsMargins(30, 30, 30, 30)
         
-        # Add title
         title_label = QLabel("Two-Factor Authentication Setup")
         title_label.setObjectName("title-label")
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
         
-        # Add instructions
         instructions = QLabel(
             "To set up two-factor authentication, enter this secret key in your authenticator app "
             "(Google Authenticator, Microsoft Authenticator, Authy, etc.)."
@@ -54,7 +51,6 @@ class SetupKeyDialog(QDialog):
         totp = pyotp.TOTP(otp_secret)
         provisioning_uri = totp.provisioning_uri(name=email, issuer_name="Automaton App")
         
-        # Add manual URI entry instructions in a styled container
         uri_container = QWidget()
         uri_container.setObjectName("uri-container")
         uri_container.setStyleSheet("""
@@ -70,7 +66,6 @@ class SetupKeyDialog(QDialog):
         uri_label.setFont(QFont("Segoe UI", 9, QFont.Bold))
         uri_layout.addWidget(uri_label)
         
-        # Display URI in a selectable text field
         uri_display = QLabel(provisioning_uri)
         uri_display.setWordWrap(True)
         uri_display.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
@@ -79,14 +74,12 @@ class SetupKeyDialog(QDialog):
         
         layout.addWidget(uri_container)
         
-        # Add separator
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)
         separator.setFrameShadow(QFrame.Sunken)
         separator.setStyleSheet("background-color: #e0e0e0;")
         layout.addWidget(separator)
         
-        # Secret key section in a styled container
         key_container = QWidget()
         key_container.setObjectName("key-container")
         key_container.setStyleSheet("""
@@ -98,13 +91,11 @@ class SetupKeyDialog(QDialog):
         """)
         key_layout = QVBoxLayout(key_container)
         
-        # Add manual key instructions with larger font
         manual_key_label = QLabel("Or enter this secret key manually:")
         manual_key_label.setFont(QFont("Segoe UI", 10, QFont.Bold))
         manual_key_label.setAlignment(Qt.AlignCenter)
         key_layout.addWidget(manual_key_label)
         
-        # Display secret key in large, clear font and selectable text
         secret_key_label = QLabel(otp_secret)
         secret_key_label.setAlignment(Qt.AlignCenter)
         secret_key_font = QFont("Courier New", 16, QFont.Bold)
@@ -115,13 +106,11 @@ class SetupKeyDialog(QDialog):
         
         layout.addWidget(key_container)
         
-        # Add copy button for easier copying
         copy_button = QPushButton("Copy Secret Key")
         copy_button.setIcon(QIcon.fromTheme("edit-copy"))
         copy_button.clicked.connect(lambda: self._copy_to_clipboard(otp_secret))
         layout.addWidget(copy_button)
         
-        # Add close button
         close_button = QPushButton("Close")
         close_button.setMinimumWidth(100)
         close_button.setMinimumHeight(35)
@@ -142,20 +131,16 @@ class OTPDialog(QDialog):
         self.setMinimumWidth(300)
         self.result_code = None
         
-        # Set up the UI
         layout = QVBoxLayout(self)
         
-        # Add instructions
         instructions = QLabel("Enter the verification code from your authenticator app:")
         layout.addWidget(instructions)
         
-        # OTP input
         self.otp_input = QLineEdit()
         self.otp_input.setPlaceholderText("6-digit code")
         self.otp_input.setMaxLength(6)
         layout.addWidget(self.otp_input)
         
-        # Buttons
         buttons_layout = QHBoxLayout()
         self.verify_button = QPushButton("Verify")
         self.verify_button.setMinimumWidth(100)
@@ -185,19 +170,16 @@ class ChangePasswordDialog(QDialog):
         
         form_layout = QFormLayout()
         
-        # New password input
         self.new_password = QLineEdit()
         self.new_password.setEchoMode(QLineEdit.Password)
         form_layout.addRow("New Password:", self.new_password)
         
-        # Confirm password input
         self.confirm_password = QLineEdit()
         self.confirm_password.setEchoMode(QLineEdit.Password)
         form_layout.addRow("Confirm Password:", self.confirm_password)
         
         layout.addLayout(form_layout)
         
-        # Password requirements
         req_group = QGroupBox("Password Requirements")
         req_layout = QVBoxLayout(req_group)
         req_layout.addWidget(QLabel("• At least 8 characters"))
@@ -207,7 +189,6 @@ class ChangePasswordDialog(QDialog):
         req_layout.addWidget(QLabel("• At least one special character"))
         layout.addWidget(req_group)
         
-        # Buttons
         buttons_layout = QHBoxLayout()
         self.change_button = QPushButton("Change Password")
         self.change_button.clicked.connect(self.accept)
@@ -233,32 +214,26 @@ class RegisterDialog(QDialog):
         
         form_layout = QFormLayout()
         
-        # Username input
         self.username_input = QLineEdit()
         form_layout.addRow("Username:", self.username_input)
         
-        # Email input
         self.email_input = QLineEdit()
         form_layout.addRow("Email:", self.email_input)
         
-        # Password input
         self.password_input = QLineEdit()
         self.password_input.setEchoMode(QLineEdit.Password)
         form_layout.addRow("Password:", self.password_input)
         
-        # Confirm password input
         self.confirm_password_input = QLineEdit()
         self.confirm_password_input.setEchoMode(QLineEdit.Password)
         form_layout.addRow("Confirm Password:", self.confirm_password_input)
         
-        # Enable 2FA
         self.enable_2fa = QCheckBox("Enable Two-Factor Authentication")
         self.enable_2fa.setChecked(True)
         form_layout.addRow("", self.enable_2fa)
         
         layout.addLayout(form_layout)
         
-        # Password requirements
         req_group = QGroupBox("Password Requirements")
         req_layout = QVBoxLayout(req_group)
         req_layout.addWidget(QLabel("• At least 8 characters"))
@@ -268,14 +243,12 @@ class RegisterDialog(QDialog):
         req_layout.addWidget(QLabel("• At least one special character"))
         layout.addWidget(req_group)
         
-        # Generate password button
         self.generate_button = QPushButton("Generate Strong Password")
         self.generate_button.setMinimumWidth(200)
         self.generate_button.setMinimumHeight(35)
         self.generate_button.clicked.connect(self.generate_password)
         layout.addWidget(self.generate_button)
         
-        # Buttons
         buttons_layout = QHBoxLayout()
         self.register_button = QPushButton("Register")
         self.register_button.setMinimumWidth(120)
@@ -317,24 +290,20 @@ class ForgotPasswordDialog(QDialog):
         
         layout = QVBoxLayout(self)
         
-        # Add instructions
         instructions = QLabel("Enter your username and email to receive a temporary password:")
         instructions.setWordWrap(True)
         layout.addWidget(instructions)
         
         form_layout = QFormLayout()
         
-        # Username input
         self.username_input = QLineEdit()
         form_layout.addRow("Username:", self.username_input)
         
-        # Email input
         self.email_input = QLineEdit()
         form_layout.addRow("Email:", self.email_input)
         
         layout.addLayout(form_layout)
         
-        # Buttons
         buttons_layout = QHBoxLayout()
         self.reset_button = QPushButton("Reset Password")
         self.reset_button.clicked.connect(self.accept)
@@ -370,18 +339,15 @@ class LoginPage(QWidget):
         layout.setSpacing(15)
         layout.setContentsMargins(40, 40, 40, 40)
         
-        # Add logo/branding container
         logo_container = QWidget()
         logo_layout = QVBoxLayout(logo_container)
         logo_layout.setAlignment(Qt.AlignCenter)
         
-        # Add a title
         title_label = QLabel("Automaton App")
         title_label.setObjectName("title-label")
         title_label.setAlignment(Qt.AlignCenter)
         logo_layout.addWidget(title_label)
         
-        # Add a description
         desc_label = QLabel("Please login to access the application")
         desc_label.setObjectName("welcome-label")
         desc_label.setAlignment(Qt.AlignCenter)
@@ -389,7 +355,6 @@ class LoginPage(QWidget):
         
         layout.addWidget(logo_container)
         
-        # Create login form in a container with style
         form_container = QWidget()
         form_container.setObjectName("form-container")
         form_container.setStyleSheet("""
@@ -403,13 +368,11 @@ class LoginPage(QWidget):
         form_layout.setSpacing(15)
         form_layout.setContentsMargins(20, 20, 20, 20)
         
-        # Create login form
         form_internal_layout = QFormLayout()
         form_internal_layout.setSpacing(10)
         form_internal_layout.setLabelAlignment(Qt.AlignLeft)
         form_internal_layout.setFormAlignment(Qt.AlignLeft)
         
-        # Username input
         username_label = QLabel("Username")
         username_label.setFont(QFont("Segoe UI", 10))
         self.username_input = QLineEdit()
@@ -417,7 +380,6 @@ class LoginPage(QWidget):
         self.username_input.setPlaceholderText("Enter your username")
         form_internal_layout.addRow(username_label, self.username_input)
         
-        # Password input
         password_label = QLabel("Password")
         password_label.setFont(QFont("Segoe UI", 10))
         self.password_input = QLineEdit()
@@ -426,10 +388,8 @@ class LoginPage(QWidget):
         self.password_input.setPlaceholderText("Enter your password")
         form_internal_layout.addRow(password_label, self.password_input)
         
-        # Add form to main layout
         form_layout.addLayout(form_internal_layout)
         
-        # Add login button
         self.login_button = QPushButton("Login")
         self.login_button.setMinimumHeight(40)
         self.login_button.setMinimumWidth(150)
@@ -450,7 +410,6 @@ class LoginPage(QWidget):
         
         layout.addWidget(form_container)
         
-        # Add register and forgot password buttons in a horizontal layout
         buttons_container = QWidget()
         buttons_layout = QHBoxLayout(buttons_container)
         buttons_layout.setContentsMargins(0, 0, 0, 0)
@@ -472,7 +431,6 @@ class LoginPage(QWidget):
         self.register_button.clicked.connect(self.show_register)
         buttons_layout.addWidget(self.register_button)
         
-        # Add spacer to push buttons to sides
         buttons_layout.addStretch()
         
         self.forgot_button = QPushButton("Forgot Password")
@@ -494,7 +452,6 @@ class LoginPage(QWidget):
         
         layout.addWidget(buttons_container)
         
-        # Add space at the bottom
         layout.addStretch()
     
     def login(self):
@@ -509,41 +466,31 @@ class LoginPage(QWidget):
             return
         
         try:
-            # Verify credentials
             auth_result = verify_user_credentials(username, password)
             status = auth_result.get("status")
             user = auth_result.get("user")
             
             if status == "must_change_password":
-                # Show change password dialog
                 self.show_change_password(username)
                 return
             
             if status == "success":
-                # Check if 2FA is required
                 if user.get("require_2fa", False) and user.get("otp_secret"):
-                    # Show OTP dialog
                     if not self.verify_otp(username):
                         return
                 
-                # Login successful
                 log_action(username, "login_success")
                 
-                # Update login count and last login time
                 update_user(username, "login_count", user.get("login_count", 0) + 1)
                 update_user(username, "last_login", int(time.time()))
                 
-                # Store current user
                 self.current_user = user
                 
-                # Show success message and proceed to main app
                 QMessageBox.information(self, "Login Successful", f"Welcome, {username}!")
                 if self.parent:
-                    # Tell parent login was successful
                     self.parent.on_login_success(user)
                 
         except ValueError as e:
-            # Login failed
             QMessageBox.warning(self, "Login Failed", str(e))
             log_action(username, "login_failed", str(e))
     
@@ -571,19 +518,16 @@ class LoginPage(QWidget):
         if dialog.exec_() == QDialog.Accepted:
             new_password, confirm_password = dialog.get_passwords()
             
-            # Validate passwords
             if new_password != confirm_password:
                 QMessageBox.warning(self, "Password Error", "Passwords do not match.")
                 return self.show_change_password(username)
             
-            # Check password complexity
             if len(new_password) < 8 or not any(c.isupper() for c in new_password) or \
                not any(c.islower() for c in new_password) or not any(c.isdigit() for c in new_password) or \
                not any(c in "!@#$%^&*()-_=+[]}{;:,.<>?" for c in new_password):
                 QMessageBox.warning(self, "Password Error", "Password does not meet complexity requirements.")
                 return self.show_change_password(username)
             
-            # Update password
             try:
                 update_user(username, "password_hash", hash_password(new_password).decode())
                 update_user(username, "must_change_password", False)
@@ -603,7 +547,6 @@ class LoginPage(QWidget):
         if dialog.exec_() == QDialog.Accepted:
             reg_data = dialog.get_registration_data()
             
-            # Validate inputs
             if not reg_data['username'] or not reg_data['email'] or not reg_data['password']:
                 QMessageBox.warning(self, "Registration Error", "All fields are required.")
                 return self.show_register()
@@ -612,19 +555,16 @@ class LoginPage(QWidget):
                 QMessageBox.warning(self, "Registration Error", "Passwords do not match.")
                 return self.show_register()
             
-            # Check password complexity
             if len(reg_data['password']) < 8 or not any(c.isupper() for c in reg_data['password']) or \
                not any(c.islower() for c in reg_data['password']) or not any(c.isdigit() for c in reg_data['password']) or \
                not any(c in "!@#$%^&*()-_=+[]}{;:,.<>?" for c in reg_data['password']):
                 QMessageBox.warning(self, "Registration Error", "Password does not meet complexity requirements.")
                 return self.show_register()
             
-            # Check if user already exists
             if get_user(reg_data['username']):
                 QMessageBox.warning(self, "Registration Error", "Username already exists.")
                 return self.show_register()
             
-            # Register user
             try:
                 add_user(
                     reg_data['username'], 
@@ -633,12 +573,10 @@ class LoginPage(QWidget):
                     require_2fa=reg_data['enable_2fa']
                 )
                 
-                # Setup OTP if enabled
                 if reg_data['enable_2fa']:
                     otp_secret = generate_otp_secret()
                     update_user(reg_data['username'], "otp_secret", otp_secret)
                     
-                    # Show OTP secret
                     self.show_qr_code(otp_secret, reg_data['username'], reg_data['email'])
                 else:
                     QMessageBox.information(self, "Registration Successful", "Your account has been created successfully. You can now login.")
@@ -662,34 +600,28 @@ class LoginPage(QWidget):
         if dialog.exec_() == QDialog.Accepted:
             username, email = dialog.get_reset_data()
             
-            # Validate inputs
             if not username or not email:
                 QMessageBox.warning(self, "Reset Error", "Please enter both username and email.")
                 return self.show_forgot_password()
             
-            # Check if user exists
             user = get_user(username)
             if not user:
                 QMessageBox.warning(self, "Reset Error", "User not found.")
                 return self.show_forgot_password()
             
-            # Check if email matches
             if user.get("email", "").lower() != email.lower():
                 QMessageBox.warning(self, "Reset Error", "Email does not match.")
                 return self.show_forgot_password()
             
-            # Generate temporary password
             try:
                 temp_password = set_temporary_password(username)
                 
-                # Send email with temporary password
                 try:
                     send_temporary_password_email(email, username, temp_password, 2)
                     QMessageBox.information(self, "Password Reset", 
                                           f"A temporary password has been sent to your email.\n"
                                           f"The temporary password is valid for 2 minutes.")
                 except Exception as e:
-                    # If email sending fails, just show the password
                     QMessageBox.information(self, "Password Reset", 
                                           f"Email sending failed, but your temporary password is: {temp_password}\n"
                                           f"This password is valid for 2 minutes.")

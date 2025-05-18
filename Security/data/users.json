@@ -132,11 +132,11 @@
         "role": "user",
         "is_locked": false,
         "login_attempts": 0,
-        "login_count": 5,
+        "login_count": 6,
         "require_2fa": true,
         "otp_secret": "EOZKF737J36A7YBIWUMGDPHNQORHLGUD",
         "created_at": 1747507077,
-        "last_login": 1747511926,
+        "last_login": 1747529248,
         "lock_until": null,
         "last_warning_sent": 0,
         "must_reset_password": false
