@@ -66,11 +66,12 @@ class Transition:
 
 
 class Automaton:
-    def __init__(self, name: str, alphabet: Alphabet, states: List[State], transitions: List[Transition]):
+    def __init__(self, name: str, alphabet: Alphabet, states: List[State], transitions: List[Transition], creator_id: Optional[str] = None):
         self.name = name
         self.alphabet = alphabet
         self.states = {s.name: s for s in states}  # Map state names to State objects
         self.transitions = transitions
+        self.creator_id = creator_id
         
         # Build transition function for faster lookup
         self.delta: Dict[Tuple[str, str], Set[str]] = {}

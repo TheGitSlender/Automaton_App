@@ -1,0 +1,59 @@
+{
+  "name": "test 1_complete",
+  "alphabet": [
+    "a",
+    "b"
+  ],
+  "states": [
+    "q0",
+    "q2",
+    "q3",
+    "sink"
+  ],
+  "initial": "q0",
+  "finals": [
+    "q3"
+  ],
+  "transitions": [
+    [
+      "q0",
+      "a",
+      "q0"
+    ],
+    [
+      "q0",
+      "b",
+      "q2"
+    ],
+    [
+      "q2",
+      "b",
+      "q3"
+    ],
+    [
+      "q2",
+      "a",
+      "sink"
+    ],
+    [
+      "q3",
+      "a",
+      "sink"
+    ],
+    [
+      "q3",
+      "b",
+      "sink"
+    ],
+    [
+      "sink",
+      "a",
+      "sink"
+    ],
+    [
+      "sink",
+      "b",
+      "sink"
+    ]
+  ]
+}

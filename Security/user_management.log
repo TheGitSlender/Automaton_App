@@ -1,0 +1,105 @@
+2025-05-18 12:49:09,520 - INFO - User: adamm | Action: password_reset
+2025-05-18 12:50:01,540 - INFO - User: adamm | Action: password_changed
+2025-05-18 12:50:04,001 - INFO - User: adamm | Action: login_failed | Details: Invalid username or password.
+2025-05-18 12:50:09,035 - INFO - User: adamm | Action: login_success
+2025-05-18 12:51:20,392 - INFO - User: adamm | Action: make_complete | Details: File: complete_20250518_125118.json
+2025-05-18 12:51:33,089 - INFO - User: adamm | Action: minimize_automaton | Details: File: minimized_20250518_125131.json
+2025-05-18 12:53:34,134 - INFO - User: adamm | Action: logout
+2025-05-18 12:53:45,021 - INFO - User: adamm | Action: login_success
+2025-05-18 12:55:06,636 - INFO - User: adamm | Action: delete_automaton | Details: File: complete_20250518_125118.json
+2025-05-18 12:55:29,823 - INFO - User: adamm | Action: delete_automaton | Details: File: minimized_20250518_125131.json
+2025-05-18 13:06:08,716 - INFO - User: adamm | Action: login_success
+2025-05-18 13:13:35,165 - INFO - User: adamm | Action: login_success
+2025-05-18 13:17:35,499 - INFO - User: adamm | Action: login_success
+2025-05-18 13:17:44,353 - INFO - User: adamm | Action: load_automaton | Details: test_adam.json
+2025-05-18 13:17:48,534 - INFO - User: adamm | Action: delete_automaton | Details: File: test_adam.json
+2025-05-18 13:18:22,901 - INFO - User: adamm | Action: delete_automaton | Details: File: min_test.json
+2025-05-18 13:20:34,161 - INFO - User: Hany | Action: user_registered
+2025-05-18 13:20:40,687 - INFO - User: Hany | Action: login_success
+2025-05-18 13:22:49,148 - INFO - User: Hany | Action: login_success
+2025-05-18 13:30:13,897 - INFO - User: Hany | Action: login_success
+2025-05-18 13:34:30,216 - INFO - User: Hany | Action: login_success
+2025-05-18 13:35:28,297 - INFO - User: Hany | Action: load_automaton | Details: Automaton.json
+2025-05-18 13:35:30,551 - INFO - User: Hany | Action: make_complete | Details: File: complete_20250518_133529.json
+2025-05-18 13:35:34,068 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_133533.json
+2025-05-18 13:40:31,254 - INFO - User: Hany | Action: login_failed | Details: Invalid username or password.
+2025-05-18 13:40:34,846 - INFO - User: Hany | Action: login_success
+2025-05-18 13:48:21,473 - INFO - User: Hany | Action: login_success
+2025-05-18 13:49:17,737 - INFO - User: Hany | Action: load_automaton | Details: haha.json
+2025-05-18 13:49:22,767 - INFO - User: Hany | Action: make_complete | Details: File: complete_20250518_134921.json
+2025-05-18 13:53:52,520 - INFO - User: adamm | Action: login_success
+2025-05-18 14:20:45,182 - INFO - User: adam | Action: login_failed | Details: Invalid username or password.
+2025-05-18 14:20:50,584 - INFO - User: adam | Action: login_failed | Details: Invalid username or password.
+2025-05-18 14:20:53,033 - INFO - User: adamm | Action: login_success
+2025-05-18 14:21:17,013 - INFO - User: Hany | Action: login_success
+2025-05-18 14:21:41,988 - INFO - User: Hany | Action: logout
+2025-05-18 14:22:10,034 - INFO - User: adamm | Action: login_success
+2025-05-18 14:22:56,059 - INFO - User: adamm | Action: load_automaton | Details: Automaton.json
+2025-05-18 14:23:04,318 - INFO - User: adamm | Action: load_automaton | Details: adam.json
+2025-05-18 14:23:06,912 - INFO - User: adamm | Action: make_complete | Details: File: complete_20250518_142306.json
+2025-05-18 14:23:24,319 - INFO - User: adamm | Action: logout
+2025-05-18 14:23:31,374 - INFO - User: Hany | Action: login_failed | Details: Invalid username or password.
+2025-05-18 14:23:36,582 - INFO - User: Hany | Action: login_success
+2025-05-18 14:23:44,831 - INFO - User: Hany | Action: load_automaton | Details: adam.json
+2025-05-18 14:24:11,845 - INFO - User: Hany | Action: logout
+2025-05-18 14:29:37,679 - INFO - User: Hany | Action: login_success
+2025-05-18 14:29:58,650 - INFO - User: Hany | Action: load_automaton | Details: adam.json
+2025-05-18 14:30:13,873 - INFO - User: Hany | Action: logout
+2025-05-18 14:30:23,886 - INFO - User: adamm | Action: login_success
+2025-05-18 14:30:35,124 - INFO - User: adamm | Action: load_automaton | Details: adam.json
+2025-05-18 16:15:14,718 - INFO - User: Hany | Action: login_failed | Details: Invalid username or password.
+2025-05-18 16:15:18,547 - INFO - User: Hany | Action: login_success
+2025-05-18 16:31:51,225 - INFO - User: Hany | Action: login_success
+2025-05-18 16:33:38,465 - INFO - User: Hany | Action: load_automaton | Details: hany_test.json
+2025-05-18 16:33:49,230 - INFO - User: Hany | Action: make_complete | Details: File: complete_20250518_163346.json
+2025-05-18 16:33:54,753 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_163353.json
+2025-05-18 16:34:03,543 - INFO - User: Hany | Action: delete_automaton | Details: File: minimized_20250518_163353.json
+2025-05-18 16:34:37,909 - INFO - User: Hany | Action: delete_automaton | Details: File: complete_20250518_163346.json
+2025-05-18 16:38:10,972 - INFO - User: Hany | Action: logout
+2025-05-18 16:38:16,959 - INFO - User: adamm | Action: login_success
+2025-05-18 16:38:23,954 - INFO - User: adamm | Action: load_automaton | Details: hany_test.json
+2025-05-18 17:39:54,833 - INFO - User: Hany | Action: login_success
+2025-05-18 18:22:41,999 - INFO - User: theslender | Action: user_registered
+2025-05-18 18:23:05,148 - INFO - User: theslender | Action: login_success
+2025-05-18 18:23:16,560 - INFO - User: theslender | Action: logout
+2025-05-18 18:24:34,106 - INFO - User: theslender | Action: login_success
+2025-05-18 18:33:15,950 - INFO - User: theslender | Action: login_success
+2025-05-18 18:40:11,212 - INFO - User: theslender | Action: load_automaton | Details: test_1.json
+2025-05-18 18:41:36,399 - INFO - User: theslender | Action: make_complete | Details: File: complete_20250518_184134.json
+2025-05-18 18:41:54,700 - INFO - User: theslender | Action: minimize_automaton | Details: File: minimized_20250518_184153.json
+2025-05-18 18:42:04,180 - INFO - User: theslender | Action: load_automaton | Details: min_test.json
+2025-05-18 18:42:16,484 - INFO - User: theslender | Action: minimize_automaton | Details: File: minimized_20250518_184215.json
+2025-05-18 18:42:26,979 - INFO - User: theslender | Action: minimize_automaton | Details: File: minimized_20250518_184226.json
+2025-05-18 18:42:33,690 - INFO - User: theslender | Action: load_automaton | Details: min_test.json
+2025-05-18 18:42:37,031 - INFO - User: theslender | Action: minimize_automaton | Details: File: minimized_20250518_184235.json
+2025-05-18 18:50:22,422 - INFO - User: theslender | Action: login_failed | Details: Invalid username or password.
+2025-05-18 18:50:37,761 - INFO - User: theslender | Action: login_success
+2025-05-18 18:50:44,483 - INFO - User: theslender | Action: load_automaton | Details: min_test.json
+2025-05-18 18:50:46,690 - INFO - User: theslender | Action: minimize_automaton | Details: File: minimized_20250518_185045.json
+2025-05-18 18:56:51,272 - INFO - User: Hany | Action: login_failed | Details: Invalid username or password.
+2025-05-18 18:57:14,168 - INFO - User: Hany | Action: user_registered
+2025-05-18 18:57:21,408 - INFO - User: Hany | Action: login_success
+2025-05-18 18:57:28,296 - INFO - User: Hany | Action: load_automaton | Details: min_test.json
+2025-05-18 18:57:30,984 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_185730.json
+2025-05-18 18:57:43,236 - INFO - User: Hany | Action: load_automaton | Details: test_1.json
+2025-05-18 18:58:06,081 - INFO - User: Hany | Action: load_automaton | Details: test_1.json
+2025-05-18 18:58:08,350 - INFO - User: Hany | Action: make_complete | Details: File: complete_20250518_185807.json
+2025-05-18 18:59:44,143 - INFO - User: Hany | Action: load_automaton | Details: min_test.json
+2025-05-18 18:59:45,879 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_185945.json
+2025-05-18 19:05:34,672 - INFO - User: theslender | Action: user_registered
+2025-05-18 19:05:48,223 - INFO - User: Hany | Action: login_success
+2025-05-18 19:05:55,004 - INFO - User: Hany | Action: load_automaton | Details: min_test.json
+2025-05-18 19:06:02,106 - INFO - User: Hany | Action: load_automaton | Details: min_test.json
+2025-05-18 19:06:20,402 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_190619.json
+2025-05-18 19:15:58,230 - INFO - User: Hany | Action: login_success
+2025-05-18 19:16:41,022 - INFO - User: Hany | Action: load_automaton | Details: File: testing_hany.json, Creator: unknown
+2025-05-18 19:16:46,899 - INFO - User: Hany | Action: make_complete | Details: File: complete_20250518_191645.json
+2025-05-18 19:16:49,584 - INFO - User: Hany | Action: delete_automaton | Details: File: complete_20250518_191645.json
+2025-05-18 19:16:54,790 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_191653.json
+2025-05-18 19:17:49,980 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_191749.json
+2025-05-18 19:19:40,270 - INFO - User: Hany | Action: load_automaton | Details: File: minimized_20250518_191749.json, Created by: Hany
+2025-05-18 19:19:43,099 - INFO - User: Hany | Action: delete_automaton | Details: File: minimized_20250518_191749.json
+2025-05-18 19:19:46,007 - INFO - User: Hany | Action: load_automaton | Details: File: complete_20250518_185807.json, Creator: unknown
+2025-05-18 19:19:52,109 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_191951.json
+2025-05-18 19:19:53,716 - INFO - User: Hany | Action: minimize_automaton | Details: File: minimized_20250518_191952.json
+2025-05-18 19:20:11,753 - INFO - User: Hany | Action: logout

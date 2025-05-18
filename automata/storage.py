@@ -18,7 +18,8 @@ def save_automaton(automaton: Automaton, file_path: str) -> None:
         "finals": [s.name for s in automaton.get_finals()],
         "transitions": [
             [t.src.name, t.symbol, t.dest.name] for t in automaton.transitions
-        ]
+        ],
+        "creator_id": automaton.creator_id  # Add creator_id to the saved data
     }
     
     # Create directory if it doesn't exist
@@ -40,6 +41,9 @@ def load_automaton(file_path: str) -> Automaton:
         if field not in data:
             raise ValueError(f"Missing required field: {field}")
     
+    # Get creator_id (might be missing in older files)
+    creator_id = data.get("creator_id")
+    
     # Create states
     states = []
     for state_name in data["states"]:
@@ -75,7 +79,7 @@ def load_automaton(file_path: str) -> Automaton:
         ))
     
     # Create automaton
-    return Automaton(data["name"], alphabet, states, transitions)
+    return Automaton(data["name"], alphabet, states, transitions, creator_id)
 
 
 def automaton_to_dict(automaton: Automaton) -> Dict[str, Any]:
@@ -87,7 +91,8 @@ def automaton_to_dict(automaton: Automaton) -> Dict[str, Any]:
         "finals": [s.name for s in automaton.get_finals()],
         "transitions": [
             [t.src.name, t.symbol, t.dest.name] for t in automaton.transitions
-        ]
+        ],
+        "creator_id": automaton.creator_id
     }
 
 
@@ -97,6 +102,9 @@ def dict_to_automaton(data: Dict[str, Any]) -> Automaton:
     for field in required_fields:
         if field not in data:
             raise ValueError(f"Missing required field: {field}")
+    
+    # Get creator_id (optional)
+    creator_id = data.get("creator_id")
     
     # Create states
     states = []
@@ -133,4 +141,4 @@ def dict_to_automaton(data: Dict[str, Any]) -> Automaton:
         ))
     
     # Create automaton
-    return Automaton(data["name"], alphabet, states, transitions) 
+    return Automaton(data["name"], alphabet, states, transitions, creator_id) 

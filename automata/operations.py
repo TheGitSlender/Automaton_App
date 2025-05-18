@@ -1,7 +1,3 @@
-"""
-Operations on automata: determinism check, completeness, conversion from NFA to DFA,
-minimization, and set operations (union, intersection, complement, equivalence).
-"""
 from typing import Dict, List, Set, Tuple, Optional, Any, Iterator
 from itertools import product
 from collections import deque
@@ -10,12 +6,10 @@ from .models import State, Alphabet, Transition, Automaton
 
 
 def is_deterministic(automaton: Automaton) -> bool:
-    # Check if there's exactly one initial state
     initial_states = [s for s in automaton.states.values() if s.is_initial]
     if len(initial_states) != 1:
         return False
     
-    # Check if for each state and symbol, there is at most one transition
     for state_name in automaton.states:
         for symbol in automaton.alphabet:
             next_states = automaton.next_states(state_name, symbol)
@@ -27,7 +21,6 @@ def is_deterministic(automaton: Automaton) -> bool:
 
 def is_complete(automaton: Automaton) -> bool:
     for state_name, state in automaton.states.items():
-        # Check all states, including final states
         for symbol in automaton.alphabet:
             next_states = automaton.next_states(state_name, symbol)
             if not next_states:
@@ -134,14 +127,11 @@ def nfa_to_dfa(automaton: Automaton) -> Automaton:
 
 
 def _get_clean_name(name: str) -> str:
-    # If the name is already short, just return it
     if len(name) < 30:
         return name
     
-    # Remove operation chain suffixes
     operations = ["_dfa", "_min", "_complete", "_union", "_intersect", "_complement"]
     
-    # Get base name (part before first operation)
     base_name = name
     for op in operations:
         if op in base_name:
@@ -151,15 +141,6 @@ def _get_clean_name(name: str) -> str:
 
 
 def minimize_automaton(automaton: Automaton) -> Automaton:
-    """
-    Minimize a DFA using Hopcroft's algorithm.
-    
-    Args:
-        automaton: The DFA to minimize
-        
-    Returns:
-        Minimized DFA
-    """
     # Ensure the automaton is deterministic and complete
     if not is_deterministic(automaton):
         automaton = nfa_to_dfa(automaton)
@@ -278,21 +259,6 @@ def minimize_automaton(automaton: Automaton) -> Automaton:
 
 
 def union(automaton1: Automaton, automaton2: Automaton) -> Automaton:
-    """
-    Compute the union of two automata.
-    
-    The union automaton accepts a word if either of the input automata accepts it.
-    
-    Args:
-        automaton1: First automaton
-        automaton2: Second automaton
-        
-    Returns:
-        Union automaton
-        
-    Raises:
-        ValueError: If the alphabets of the automata are different
-    """
     # Check that alphabets are the same
     if set(automaton1.alphabet.symbols) != set(automaton2.alphabet.symbols):
         raise ValueError("Automata must have the same alphabet for union operation")
@@ -348,21 +314,6 @@ def union(automaton1: Automaton, automaton2: Automaton) -> Automaton:
 
 
 def intersection(automaton1: Automaton, automaton2: Automaton) -> Automaton:
-    """
-    Compute the intersection of two automata.
-    
-    The intersection automaton accepts a word if both input automata accept it.
-    
-    Args:
-        automaton1: First automaton
-        automaton2: Second automaton
-        
-    Returns:
-        Intersection automaton
-        
-    Raises:
-        ValueError: If the alphabets of the automata are different
-    """
     # Check that alphabets are the same
     if set(automaton1.alphabet.symbols) != set(automaton2.alphabet.symbols):
         raise ValueError("Automata must have the same alphabet for intersection operation")
@@ -418,17 +369,6 @@ def intersection(automaton1: Automaton, automaton2: Automaton) -> Automaton:
 
 
 def complement(automaton: Automaton) -> Automaton:
-    """
-    Compute the complement of an automaton.
-    
-    The complement automaton accepts a word if the input automaton rejects it.
-    
-    Args:
-        automaton: Input automaton
-        
-    Returns:
-        Complement automaton
-    """
     # Convert to DFA and make complete
     dfa = nfa_to_dfa(automaton)
     complete_dfa = make_complete(dfa)
@@ -454,19 +394,6 @@ def complement(automaton: Automaton) -> Automaton:
 
 
 def are_equivalent(automaton1: Automaton, automaton2: Automaton) -> bool:
-    """
-    Check if two automata are equivalent (accept the same language).
-    
-    Args:
-        automaton1: First automaton
-        automaton2: Second automaton
-        
-    Returns:
-        True if the automata are equivalent, False otherwise
-        
-    Raises:
-        ValueError: If the alphabets of the automata are different
-    """
     # Check that alphabets are the same
     if set(automaton1.alphabet.symbols) != set(automaton2.alphabet.symbols):
         raise ValueError("Automata must have the same alphabet to check equivalence")

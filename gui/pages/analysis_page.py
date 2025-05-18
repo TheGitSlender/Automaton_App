@@ -324,15 +324,19 @@ class AnalysisPage(BasePage):
             self.analysis_automaton = load_automaton(file_path)
             self.current_automaton_path = file_path
             
+            # Log the creator of this automaton
+            creator = self.analysis_automaton.creator_id if hasattr(self.analysis_automaton, 'creator_id') else "unknown"
+            creator_info = f"Created by: {creator}" if creator else "Creator: unknown"
+            
             self.update_analysis()
             
-            show_info(self, "Automaton Loaded", f"Automaton loaded from {os.path.basename(file_path)}")
+            show_info(self, "Automaton Loaded", f"Automaton loaded from {os.path.basename(file_path)}\n{creator_info}")
             
             # Log the action
             if self.parent and hasattr(self.parent, 'current_user'):
                 from Security.security.logs import log_action
                 username = self.parent.current_user.get("username", "unknown")
-                log_action(username, "load_automaton", os.path.basename(file_path))
+                log_action(username, "load_automaton", f"File: {os.path.basename(file_path)}, {creator_info}")
                 
         except Exception as e:
             show_error(self, "Error Loading Automaton", str(e))
@@ -364,9 +368,68 @@ class AnalysisPage(BasePage):
         self.transitions_value.setText(str(len(automaton.transitions)))
         self.alphabet_value.setText(str(len(automaton.alphabet)))
         
-        # Check determinism and completeness
-        self.check_determinism(False)
-        self.check_completeness(False)
+        # Perform analysis
+        is_det = is_deterministic(automaton)
+        is_comp = is_complete(automaton)
+        
+        # Update the UI indicators
+        if is_det:
+            self.determinism_value.setText("Yes")
+            self.determinism_value.setStyleSheet("color: green; font-weight: bold;")
+        else:
+            self.determinism_value.setText("No")
+            self.determinism_value.setStyleSheet("color: red; font-weight: bold;")
+            
+        if is_comp:
+            self.completeness_value.setText("Yes")
+            self.completeness_value.setStyleSheet("color: green; font-weight: bold;")
+        else:
+            self.completeness_value.setText("No")
+            self.completeness_value.setStyleSheet("color: red; font-weight: bold;")
+        
+        # Create comprehensive analysis
+        details = f"Analysis of automaton:\n\n"
+        
+        # Determinism details
+        details += f"DETERMINISM: {'Yes' if is_det else 'No'}\n"
+        if is_det:
+            details += (
+                "The automaton is deterministic.\n"
+                "Properties of a deterministic automaton:\n"
+                "- Each state has at most one transition for each symbol\n"
+                "- No epsilon transitions\n"
+                "- Exactly one initial state\n"
+            )
+        else:
+            details += (
+                "The automaton is non-deterministic.\n"
+                "Reasons for non-determinism could include:\n"
+                "- Multiple transitions with the same symbol from a state\n"
+                "- Presence of epsilon transitions\n"
+                "- Multiple initial states\n"
+            )
+        
+        details += "\n"
+        
+        # Completeness details
+        details += f"COMPLETENESS: {'Yes' if is_comp else 'No'}\n"
+        if is_comp:
+            details += (
+                "The automaton is complete.\n"
+                "Properties of a complete automaton:\n"
+                "- Each state has exactly one transition for each symbol in the alphabet\n"
+                "- All possible inputs are handled from every state\n"
+            )
+        else:
+            details += (
+                "The automaton is incomplete.\n"
+                "Reasons for incompleteness:\n"
+                "- Some states don't have transitions for all symbols in the alphabet\n"
+                "- Some input sequences may lead to undefined behavior\n"
+            )
+        
+        # Update the details text
+        self.details_text.setText(details)
     
     def check_determinism(self, show_message=True):
         """
@@ -394,29 +457,31 @@ class AnalysisPage(BasePage):
                 self.determinism_value.setText("Yes")
                 self.determinism_value.setStyleSheet("color: green; font-weight: bold;")
                 
+                details = (
+                    "The automaton is deterministic.\n\n"
+                    "Properties of a deterministic automaton:\n"
+                    "- Each state has at most one transition for each symbol\n"
+                    "- No epsilon transitions\n"
+                    "- Exactly one initial state"
+                )
+                self.details_text.setText(details)
+                
                 if show_message:
-                    details = (
-                        "The automaton is deterministic.\n\n"
-                        "Properties of a deterministic automaton:\n"
-                        "- Each state has at most one transition for each symbol\n"
-                        "- No epsilon transitions\n"
-                        "- Exactly one initial state"
-                    )
-                    self.details_text.setText(details)
                     show_info(self, "Determinism Check", "The automaton is deterministic.")
             else:
                 self.determinism_value.setText("No")
                 self.determinism_value.setStyleSheet("color: red; font-weight: bold;")
                 
+                details = (
+                    "The automaton is non-deterministic.\n\n"
+                    "Reasons for non-determinism could include:\n"
+                    "- Multiple transitions with the same symbol from a state\n"
+                    "- Presence of epsilon transitions\n"
+                    "- Multiple initial states"
+                )
+                self.details_text.setText(details)
+                
                 if show_message:
-                    details = (
-                        "The automaton is non-deterministic.\n\n"
-                        "Reasons for non-determinism could include:\n"
-                        "- Multiple transitions with the same symbol from a state\n"
-                        "- Presence of epsilon transitions\n"
-                        "- Multiple initial states"
-                    )
-                    self.details_text.setText(details)
                     show_info(self, "Determinism Check", "The automaton is non-deterministic.")
             
             # Log the action
@@ -458,27 +523,29 @@ class AnalysisPage(BasePage):
                 self.completeness_value.setText("Yes")
                 self.completeness_value.setStyleSheet("color: green; font-weight: bold;")
                 
+                details = (
+                    "The automaton is complete.\n\n"
+                    "Properties of a complete automaton:\n"
+                    "- Each state has exactly one transition for each symbol in the alphabet\n"
+                    "- All possible inputs are handled from every state"
+                )
+                self.details_text.setText(details)
+                
                 if show_message:
-                    details = (
-                        "The automaton is complete.\n\n"
-                        "Properties of a complete automaton:\n"
-                        "- Each state has exactly one transition for each symbol in the alphabet\n"
-                        "- All possible inputs are handled from every state"
-                    )
-                    self.details_text.setText(details)
                     show_info(self, "Completeness Check", "The automaton is complete.")
             else:
                 self.completeness_value.setText("No")
                 self.completeness_value.setStyleSheet("color: red; font-weight: bold;")
                 
+                details = (
+                    "The automaton is incomplete.\n\n"
+                    "Reasons for incompleteness:\n"
+                    "- Some states don't have transitions for all symbols in the alphabet\n"
+                    "- Some input sequences may lead to undefined behavior"
+                )
+                self.details_text.setText(details)
+                
                 if show_message:
-                    details = (
-                        "The automaton is incomplete.\n\n"
-                        "Reasons for incompleteness:\n"
-                        "- Some states don't have transitions for all symbols in the alphabet\n"
-                        "- Some input sequences may lead to undefined behavior"
-                    )
-                    self.details_text.setText(details)
                     show_info(self, "Completeness Check", "The automaton is incomplete.")
             
             # Log the action
@@ -514,6 +581,12 @@ class AnalysisPage(BasePage):
             
             # Convert to DFA
             dfa = nfa_to_dfa(automaton)
+            
+            # Preserve creator_id or set it to current user
+            if hasattr(automaton, 'creator_id') and automaton.creator_id:
+                dfa.creator_id = automaton.creator_id
+            elif self.parent and hasattr(self.parent, 'current_user'):
+                dfa.creator_id = self.parent.current_user.get("username", "unknown")
             
             # Save the DFA
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -560,6 +633,12 @@ class AnalysisPage(BasePage):
             
             # Make complete
             complete_automaton = make_complete(automaton)
+            
+            # Preserve creator_id or set it to current user
+            if hasattr(automaton, 'creator_id') and automaton.creator_id:
+                complete_automaton.creator_id = automaton.creator_id
+            elif self.parent and hasattr(self.parent, 'current_user'):
+                complete_automaton.creator_id = self.parent.current_user.get("username", "unknown")
             
             # Save the complete automaton
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -614,6 +693,12 @@ class AnalysisPage(BasePage):
             
             # Minimize the automaton
             minimized = minimize_automaton(automaton)
+            
+            # Preserve creator_id or set it to current user
+            if hasattr(automaton, 'creator_id') and automaton.creator_id:
+                minimized.creator_id = automaton.creator_id
+            elif self.parent and hasattr(self.parent, 'current_user'):
+                minimized.creator_id = self.parent.current_user.get("username", "unknown")
             
             # Save the minimized automaton
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -679,6 +764,11 @@ class AnalysisPage(BasePage):
             if not file_path.endswith('.json'):
                 file_path += '.json'
             
+            # Set creator_id if not already set
+            if not hasattr(automaton, 'creator_id') or automaton.creator_id is None:
+                if self.parent and hasattr(self.parent, 'current_user'):
+                    automaton.creator_id = self.parent.current_user.get("username", "unknown")
+            
             # Save the automaton
             save_automaton(automaton, file_path)
             
@@ -714,33 +804,53 @@ class AnalysisPage(BasePage):
         
         file_name = os.path.basename(file_path)
         
-        reply = QMessageBox.question(
-            self, "Delete Automaton",
-            f"Are you sure you want to delete '{file_name}'?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            try:
-                os.remove(file_path)
+        # Load the automaton to check permissions
+        try:
+            automaton = load_automaton(file_path)
+            
+            # Check user permissions
+            if self.parent and hasattr(self.parent, 'current_user'):
+                current_username = self.parent.current_user.get("username", "unknown")
+                current_role = self.parent.current_user.get("role", "user")
                 
-                # If the deleted file was the current one, clear it
-                if self.current_automaton_path == file_path:
-                    self.current_automaton_path = None
-                    self.analysis_automaton = None
-                    self.update_analysis()
-                
-                # Refresh the list
-                self.refresh_automaton_list()
-                
-                # Show success message
-                show_info(self, "Delete Successful", f"Automaton '{file_name}' deleted.")
-                
-                # Log the action
-                if self.parent and hasattr(self.parent, 'current_user'):
-                    from Security.security.logs import log_action
-                    username = self.parent.current_user.get("username", "unknown")
-                    log_action(username, "delete_automaton", f"File: {file_name}")
+                # Check if the user has permission to delete (is admin or creator)
+                if current_role != "admin" and automaton.creator_id != current_username:
+                    show_error(self, "Permission Denied", 
+                              "You don't have permission to delete this automaton. "
+                              "Only administrators and the creator of the automaton can delete it.")
+                    return
+            
+            reply = QMessageBox.question(
+                self, "Delete Automaton",
+                f"Are you sure you want to delete '{file_name}'?",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                try:
+                    os.remove(file_path)
                     
-            except Exception as e:
-                show_error(self, "Error Deleting Automaton", str(e)) 
+                    # If the deleted file was the current one, clear it
+                    if self.current_automaton_path == file_path:
+                        self.current_automaton_path = None
+                        self.analysis_automaton = None
+                        self.update_analysis()
+                    
+                    # Refresh the list
+                    self.refresh_automaton_list()
+                    
+                    # Show success message
+                    show_info(self, "Delete Successful", f"Automaton '{file_name}' deleted.")
+                    
+                    # Log the action
+                    if self.parent and hasattr(self.parent, 'current_user'):
+                        from Security.security.logs import log_action
+                        username = self.parent.current_user.get("username", "unknown")
+                        log_action(username, "delete_automaton", f"File: {file_name}")
+                        
+                except Exception as e:
+                    show_error(self, "Error Deleting Automaton", str(e))
+                    
+        except Exception as e:
+            show_error(self, "Error Loading Automaton", 
+                      f"Could not load automaton for permission check: {str(e)}") 

@@ -1,0 +1,60 @@
+{
+  "name": "test 1_complete_min",
+  "alphabet": [
+    "a",
+    "b"
+  ],
+  "states": [
+    "q3",
+    "sink",
+    "q0",
+    "q2"
+  ],
+  "initial": "q0",
+  "finals": [
+    "q3"
+  ],
+  "transitions": [
+    [
+      "q3",
+      "a",
+      "sink"
+    ],
+    [
+      "q3",
+      "b",
+      "sink"
+    ],
+    [
+      "sink",
+      "a",
+      "sink"
+    ],
+    [
+      "sink",
+      "b",
+      "sink"
+    ],
+    [
+      "q0",
+      "a",
+      "q0"
+    ],
+    [
+      "q0",
+      "b",
+      "q2"
+    ],
+    [
+      "q2",
+      "a",
+      "sink"
+    ],
+    [
+      "q2",
+      "b",
+      "q3"
+    ]
+  ],
+  "creator_id": "Hany"
+}
